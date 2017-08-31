@@ -6,17 +6,18 @@ use pocketmine\level\generator\Generator;
 use pocketmine\level\ChunkManager;
 use pocketmine\math\Vector3;
 use pocketmine\utils\Random;
-use pocketmine\level\Level;
 
 class MyPlotGenerator extends Generator
 {
 	/** @var ChunkManager $level */
 	private $level;
+
 	/** @var string[] $settings */
 	private $settings;
 
 	/** @var Block */
 	public $roadBlock, $wallBlock, $plotFloorBlock, $plotFillBlock, $bottomBlock;
+
 	/** @var int */
 	public $roadWidth = 7, $plotSize = 32, $groundHeight = 64;
 
@@ -33,11 +34,11 @@ class MyPlotGenerator extends Generator
 		} else {
 			$settings = [];
 		}
-		$this->roadBlock = PlotLevelSettings::parseBlock($settings, "RoadBlock", new Block(5));
-		$this->wallBlock = PlotLevelSettings::parseBlock($settings, "WallBlock", new Block(44));
-		$this->plotFloorBlock = PlotLevelSettings::parseBlock($settings, "PlotFloorBlock", new Block(2));
-		$this->plotFillBlock = PlotLevelSettings::parseBlock($settings, "PlotFillBlock", new Block(3));
-		$this->bottomBlock = PlotLevelSettings::parseBlock($settings, "BottomBlock", new Block(7));
+		$this->roadBlock = PlotLevelSettings::parseBlock($settings, "RoadBlock", Block::get(Block::PLANKS));
+		$this->wallBlock = PlotLevelSettings::parseBlock($settings, "WallBlock", Block::get(Block::STONE_SLAB));
+		$this->plotFloorBlock = PlotLevelSettings::parseBlock($settings, "PlotFloorBlock", Block::get(Block::GRASS));
+		$this->plotFillBlock = PlotLevelSettings::parseBlock($settings, "PlotFillBlock", Block::get(Block::DIRT));
+		$this->bottomBlock = PlotLevelSettings::parseBlock($settings, "BottomBlock", Block::get(Block::BEDROCK));
 
 		$this->roadWidth = PlotLevelSettings::parseNumber($settings, "RoadWidth", 7);
 		$this->plotSize = PlotLevelSettings::parseNumber($settings, "PlotSize", 32);

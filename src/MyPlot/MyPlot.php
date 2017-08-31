@@ -230,9 +230,13 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @param Player $player
 	 * @param Plot $plot
+	 * @param bool $center
 	 * @return bool
 	 */
-	public function teleportPlayerToPlot(Player $player, Plot $plot) : bool {
+	public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
+		if($center) {
+			return $this->teleportMiddle($player, $plot);
+		}
 		$plotLevel = $this->getLevelSettings($plot->levelName);
 		if ($plotLevel === null) {
 			return false;
@@ -240,8 +244,7 @@ class MyPlot extends PluginBase
 		$pos = $this->getPlotPosition($plot);
 		$plotSize = $plotLevel->plotSize;
 		$pos->add(floor($plotSize / 2), -1, 1);
-		$player->teleport($pos);
-		return true;
+		return $player->teleport($pos);
 	}
 
 	/**
@@ -357,9 +360,6 @@ class MyPlot extends PluginBase
 					$chunkIndexes[] = $index;
 				}
 				Level::getXZ($index, $pos->x, $pos->z);
-				if(!($chunk = $level->getChunk($pos->x, $pos->z)) instanceof Chunk) {
-					$this->getLogger()->error("The chunk isn't a valid chunk!");
-				}
 			}
 		}
 		$chunks = [];
@@ -415,13 +415,13 @@ class MyPlot extends PluginBase
 		$plotSize = $plotLevel->plotSize;
 		$pos = $this->getPlotPosition($plot);
 		if($plot->X >= 0 and $plot->Z >= 0)
-			$pos->add(floor($plotSize / 2), 1, floor($plotSize / 2));
+			$pos = new Position($pos->getFloorX() + floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + floor($plotSize / 2), $pos->getLevel());
 		if($plot->X < 0 and $plot->Z > 0)
-			$pos->add(-floor($plotSize / 2), 1, floor($plotSize / 2));
+			$pos = new Position($pos->getFloorX() + -floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + floor($plotSize / 2), $pos->getLevel());
 		if($plot->X > 0 and $plot->Z < 0)
-			$pos->add(floor($plotSize / 2), 1, -floor($plotSize / 2));
+			$pos = new Position($pos->getFloorX() + floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + -floor($plotSize / 2), $pos->getLevel());
 		if($plot->X < 0 and $plot->Z < 0)
-			$pos->add(-floor($plotSize / 2), 1, -floor($plotSize / 2));
+			$pos = new Position($pos->getFloorX() + -floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + -floor($plotSize / 2), $pos->getLevel());
 
 		return $pos;
 	}

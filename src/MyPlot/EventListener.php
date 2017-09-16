@@ -251,20 +251,20 @@ class EventListener implements Listener
 			}
 			$plotName = TextFormat::GREEN . $plot;
 			$popup = $this->plugin->getLanguage()->translateString("popup", [$plotName]);
-			if(strpos($plot,"-0")) {
+			if(strpos($plot->__toString(),"-0")) {
 				return;
 			}
 			if ($plot->owner != "") {
 				$owner = TextFormat::GREEN . $plot->owner;
 				$ownerPopup = $this->plugin->getLanguage()->translateString("popup.owner", [$owner]);
-				$paddingSize = floor((strlen($popup) - strlen($ownerPopup)) / 2);
+				$paddingSize = (int) floor((strlen($popup) - strlen($ownerPopup)) / 2);
 				$paddingPopup = str_repeat(" ", max(0, -$paddingSize));
 				$paddingOwnerPopup = str_repeat(" ", max(0, $paddingSize));
 				$popup = TextFormat::WHITE . $paddingPopup . $popup . "\n" .
 					TextFormat::WHITE . $paddingOwnerPopup . $ownerPopup;
 			} else {
 				$ownerPopup = $this->plugin->getLanguage()->translateString("popup.available");
-				$paddingSize = floor((strlen($popup) - strlen($ownerPopup)) / 2);
+				$paddingSize = (int) floor((strlen($popup) - strlen($ownerPopup)) / 2);
 				$paddingPopup = str_repeat(" ", max(0, -$paddingSize));
 				$paddingOwnerPopup = str_repeat(" ", max(0, $paddingSize));
 				$popup = TextFormat::WHITE . $paddingPopup . $popup . "\n" .

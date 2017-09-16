@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -26,7 +27,7 @@ class ClaimSubCommand extends SubCommand
 			$name = $args[0];
 		}
 		$player = $sender->getServer()->getPlayer($sender->getName());
-		$plot = $this->getPlugin()->getPlotByPosition($player->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($player);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -45,7 +46,7 @@ class ClaimSubCommand extends SubCommand
 		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
 			$level = $this->getPlugin()->getServer()->getLevelByName($level);
 			if(!$level->isClosed())
-				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($player->getName(), $level->getName()));
+				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($player->getName(), $level->getFolderName()));
 		}
 		if ($plotsOfPlayer >= $maxPlots) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("claim.maxplots", [$maxPlots]));

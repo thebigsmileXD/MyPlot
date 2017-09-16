@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
@@ -67,6 +68,7 @@ class YAMLDataProvider extends DataProvider
 		$levelKeys = array_keys($plots, $levelName);
 		$xKeys = array_keys($plots, $X);
 		$zKeys = array_keys($plots, $Z);
+		/** @var int|null $key */
 		$key = null;
 		foreach($levelKeys as $levelKey) {
 			foreach($xKeys as $xKey) {

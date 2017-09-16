@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -21,7 +22,7 @@ class AutoSubCommand extends SubCommand
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, array $args) {
-		$levelName = $sender->getLevel()->getName();
+		$levelName = $sender->getLevel()->getFolderName();
 		if (!$this->getPlugin()->isLevelLoaded($levelName)) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("auto.notplotworld"));
 			return true;

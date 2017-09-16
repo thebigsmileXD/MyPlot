@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -24,7 +25,7 @@ class NameSubCommand extends SubCommand
 		if(empty($args)) {
 			return false;
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;

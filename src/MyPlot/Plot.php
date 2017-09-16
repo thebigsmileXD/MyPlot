@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot;
 
 class Plot
@@ -33,7 +34,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function isHelper($username) {
+	public function isHelper(string $username) {
 		return in_array($username, $this->helpers);
 	}
 
@@ -42,7 +43,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function addHelper($username) {
+	public function addHelper(string $username) {
 		if (!$this->isHelper($username)) {
 			$this->unDenyPlayer($username);
 			$this->helpers[] = $username;
@@ -56,7 +57,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function removeHelper($username) {
+	public function removeHelper(string $username) {
 		if(!$this->isHelper($username)) {
 			return false;
 		}
@@ -73,7 +74,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function isDenied($username) {
+	public function isDenied(string $username) {
 		return in_array($username, $this->denied);
 	}
 
@@ -82,7 +83,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function denyPlayer($username) {
+	public function denyPlayer(string $username) {
 		if (!$this->isDenied($username)) {
 			$this->removeHelper($username);
 			$this->denied[] = $username;
@@ -96,7 +97,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function unDenyPlayer($username) {
+	public function unDenyPlayer(string $username) {
 		if(!$this->isDenied($username)) {
 			return false;
 		}

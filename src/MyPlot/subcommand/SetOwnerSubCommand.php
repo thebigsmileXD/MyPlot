@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -24,7 +25,7 @@ class SetOwnerSubCommand extends SubCommand
 		if(empty($args)) {
 			return false;
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -34,7 +35,7 @@ class SetOwnerSubCommand extends SubCommand
 		foreach($this->getPlugin()->getPlotLevels() as $level => $settings) {
 			$level = $this->getPlugin()->getServer()->getLevelByName($level);
 			if(!$level->isClosed())
-				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($sender->getName(), $level->getName()));
+				$plotsOfPlayer += count($this->getPlugin()->getPlotsOfPlayer($sender->getName(), $level->getFolderName()));
 		}
 		if ($plotsOfPlayer >= $maxPlots) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("setowner.maxplots", [$maxPlots]));

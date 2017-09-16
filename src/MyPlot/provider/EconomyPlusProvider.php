@@ -1,12 +1,14 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\provider;
 
 use EconomyPlus\EconomyPlus;
+
 use pocketmine\Player;
 
 class EconomyPlusProvider implements EconomyProvider
 {
-	/** @var EconomyPlus  */
+	/** @var EconomyPlus $plugin */
 	public $plugin;
 
 	public function __construct(EconomyPlus $plugin)

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -24,7 +25,8 @@ class GiveSubCommand extends SubCommand
 		if (empty($args)) {
 			return false;
 		}
-		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
+		$newOwner = $args[0];
+		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -34,8 +36,8 @@ class GiveSubCommand extends SubCommand
 			return true;
 		}
 
-		$newOwner = $this->getPlugin()->getServer()->getPlayer($args[0]);
-		if (!($newOwner instanceof Player)) {
+		$newOwner = $this->getPlugin()->getServer()->getPlayer($newOwner);
+		if (!$newOwner instanceof Player) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("give.notonline"));
 			return true;
 		} elseif ($newOwner->getName() === $sender->getName()) {
@@ -44,7 +46,7 @@ class GiveSubCommand extends SubCommand
 		}
 
 		$maxPlots = $this->getPlugin()->getMaxPlotsOfPlayer($newOwner);
-		$plotsOfPlayer = count($this->getPlugin()->getPlotsOfPlayer($newOwner->getName(),$newOwner->getLevel()->getName()));
+		$plotsOfPlayer = count($this->getPlugin()->getPlotsOfPlayer($newOwner->getName(),$newOwner->getLevel()->getFolderName()));
 		if ($plotsOfPlayer >= $maxPlots) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("give.maxedout", [$maxPlots]));
 			return true;

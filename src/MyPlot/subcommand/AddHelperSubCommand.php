@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -25,7 +26,7 @@ class AddHelperSubCommand extends SubCommand
 			return false;
 		}
 		$helper = $args[0];
-		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -34,16 +35,7 @@ class AddHelperSubCommand extends SubCommand
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
-			if(similar_text($helper,strtolower($player->getName()))/strlen($player->getName()) >= 0.3 ) { //TODO correct with a better system
-				$helper = $this->getPlugin()->getServer()->getPlayer($helper);
-				break;
-			}
-		}
-		if(!$helper instanceof Player) {
-			$sender->sendMessage($this->translateString("addhelper.notaplayer"));
-			return true;
-		}
+		$helper = $this->getPlugin()->getServer()->getOfflinePlayer($helper)->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($helper);
 		if (!$plot->addHelper($helper->getName())) {
 			$sender->sendMessage($this->translateString("addhelper.alreadyone", [$helper->getName()]));
 			return true;

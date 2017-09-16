@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot;
 
 use MyPlot\provider\EconomyPlusProvider;
@@ -14,8 +15,6 @@ use MyPlot\provider\SQLiteDataProvider;
 use MyPlot\provider\EconomyProvider;
 
 use onebone\economyapi\EconomyAPI;
-
-use EconomyPlus\EconomyPlus;
 
 use EssentialsPE\Loader;
 
@@ -36,7 +35,6 @@ use spoondetector\SpoonDetector;
 
 class MyPlot extends PluginBase
 {
-
 	/** @var PlotLevelSettings[] $levels */
 	private $levels = [];
 
@@ -168,7 +166,7 @@ class MyPlot extends PluginBase
 	public function getPlotByPosition(Position $position) {
 		$x = $position->x;
 		$z = $position->z;
-		$levelName = $position->level->getName();
+		$levelName = $position->level->getFolderName();
 
 		$plotLevel = $this->getLevelSettings($levelName);
 		if ($plotLevel === null) {
@@ -180,18 +178,18 @@ class MyPlot extends PluginBase
 		$totalSize = $plotSize + $roadWidth;
 
 		if ($x >= 0) {
-			$X = floor($x / $totalSize);
+			$X = (int) floor($x / $totalSize);
 			$difX = $x % $totalSize;
 		}else{
-			$X = ceil(($x - $plotSize + 1) / $totalSize);
+			$X = (int) ceil(($x - $plotSize + 1) / $totalSize);
 			$difX = abs(($x - $plotSize + 1) % $totalSize);
 		}
 
 		if ($z >= 0) {
-			$Z = floor($z / $totalSize);
+			$Z = (int) floor($z / $totalSize);
 			$difZ = $z % $totalSize;
 		}else{
-			$Z = ceil(($z - $plotSize + 1) / $totalSize);
+			$Z = (int) ceil(($z - $plotSize + 1) / $totalSize);
 			$difZ = abs(($z - $plotSize + 1) % $totalSize);
 		}
 
@@ -260,7 +258,7 @@ class MyPlot extends PluginBase
 			return false;
 		}
 		foreach($this->getServer()->getLevelByName($plot->levelName)->getEntities() as $entity) {
-			$plotb = $this->getPlotByPosition($entity->getPosition());
+			$plotb = $this->getPlotByPosition($entity);
 			if($plotb != null) {
 				if($plotb === $plot) {
 					if(!$entity instanceof Player) {
@@ -372,7 +370,6 @@ class MyPlot extends PluginBase
 		return $chunks;
 	}
 
-
 	/**
 	 * Get the maximum number of plots a player can claim
 	 *
@@ -455,12 +452,13 @@ class MyPlot extends PluginBase
 		@mkdir($this->getDataFolder() . "worlds");
 
 		Generator::addGenerator(MyPlotGenerator::class, "myplot");
-
+		/** @var string $lang */
 		$lang = $this->getConfig()->get("language", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang, $this->getFile() . "resources/");
 
 		// Initialize DataProvider
-		$cacheSize = $this->getConfig()->get("PlotCacheSize");
+		/** @var int $cacheSize */
+		$cacheSize = $this->getConfig()->get("PlotCacheSize", 256);
 		switch (strtolower($this->getConfig()->get("DataProvider"))) {
 			case "mysql":
 				$settings = $this->getConfig()->get("MySQLSettings");
@@ -480,7 +478,7 @@ class MyPlot extends PluginBase
 		}
 
 		// Initialize EconomyProvider
-		if ($this->getConfig()->get("UseEconomy") == true) {
+		if ($this->getConfig()->get("UseEconomy", false) === true) {
 			if (($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) !== null) {
 				if($plugin instanceof EconomyAPI) {
 					$this->economyProvider = new EconomySProvider($plugin);
@@ -505,7 +503,8 @@ class MyPlot extends PluginBase
 					$this->getLogger()->debug("Eco set to EconomyPlus");
 				}
 				$this->getLogger()->debug("Eco not instance of EconomyPlus");
-			} else {
+			}
+			if(!isset($this->economyProvider)) {
 				$this->getLogger()->info("No supported economy plugin found!");
 				$this->getConfig()->set("UseEconomy",false);
 			}

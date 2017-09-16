@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use MyPlot\Plot;
@@ -29,7 +30,7 @@ class HomeSubCommand extends SubCommand
 		} else {
 			return false;
 		}
-		$levelName = $args[1] ?? $sender->getLevel()->getName();
+		$levelName = $args[1] ?? $sender->getLevel()->getFolderName();
 		$plots = $this->getPlugin()->getPlotsOfPlayer($sender->getName(), $levelName);
 		if (empty($plots)) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("home.noplots"));

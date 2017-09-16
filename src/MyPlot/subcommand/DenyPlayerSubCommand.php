@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -25,8 +26,7 @@ class DenyPlayerSubCommand extends SubCommand
 			return false;
 		}
 		$dplayer = strtolower($args[0]);
-		$dp = $this->getPlugin()->getServer()->getPlayer($dplayer);
-		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -35,20 +35,15 @@ class DenyPlayerSubCommand extends SubCommand
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notowner"));
 			return true;
 		}
-		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
-			if(similar_text($dplayer,strtolower($player->getName()))/strlen($player->getName()) >= 0.3 ) { //TODO correct with a better system
-				$dplayer = $this->getPlugin()->getServer()->getPlayer($dplayer);
-				break;
-			}
-		}
+		$dplayer = $this->getPlugin()->getServer()->getPlayer($dplayer);
 		if(!$dplayer instanceof Player) {
 			$sender->sendMessage($this->translateString("denyplayer.notaplayer"));
 			return true;
 		}
 		if($dplayer->hasPermission("myplot.admin.bypassdeny") or $dplayer->getName() == $plot->owner) {
 			$sender->sendMessage($this->translateString("denyplayer.cannotdeny", [$dplayer->getName()]));
-			if($dp instanceof Player)
-				$dp->sendMessage($this->translateString("denyplayer.attempteddeny", [$sender->getName()]));
+			if($dplayer instanceof Player)
+				$dplayer->sendMessage($this->translateString("denyplayer.attempteddeny", [$sender->getName()]));
 			return true;
 		}
 		if (!$plot->denyPlayer($dplayer->getName())) {
@@ -57,8 +52,8 @@ class DenyPlayerSubCommand extends SubCommand
 		}
 		if ($this->getPlugin()->savePlot($plot)) {
 			$sender->sendMessage($this->translateString("denyplayer.success1", [$dplayer->getName()]));
-			if($dp instanceof Player)
-				$dp->sendMessage($this->translateString("denyplayer.success2", [$plot->X,$plot->Z,$sender->getName()]));
+			if($dplayer instanceof Player)
+				$dplayer->sendMessage($this->translateString("denyplayer.success2", [$plot->X,$plot->Z,$sender->getName()]));
 		} else {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
 		}

@@ -1,15 +1,15 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use MyPlot\Commands;
 use MyPlot\MyPlot;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
 use pocketmine\utils\TextFormat;
 
 class HelpSubCommand extends SubCommand
 {
-	/** @var  Commands */
+	/** @var Commands $cmds */
 	private $cmds;
 	public function __construct(MyPlot $plugin, $name, $cmds) {
 		parent::__construct($plugin, $name);

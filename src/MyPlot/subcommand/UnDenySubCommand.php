@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot\subcommand;
 
 use pocketmine\command\CommandSender;
@@ -25,8 +26,7 @@ class UnDenySubCommand extends SubCommand
 			return false;
 		}
 		$dplayer = $args[0];
-		$dp = $this->getPlugin()->getServer()->getPlayer($dplayer);
-		$plot = $this->getPlugin()->getPlotByPosition($sender->getPosition());
+		$plot = $this->getPlugin()->getPlotByPosition($sender);
 		if ($plot === null) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("notinplot"));
 			return true;
@@ -39,10 +39,11 @@ class UnDenySubCommand extends SubCommand
 			$sender->sendMessage(TextFormat::RED . $this->translateString("undenyplayer.failure", [$dplayer]));
 			return true;
 		}
+		$dplayer = $this->getPlugin()->getServer()->getOfflinePlayer($dplayer)->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($dplayer);
 		if ($this->getPlugin()->savePlot($plot)) {
-			$sender->sendMessage($this->translateString("undenyplayer.success1", [$dplayer]));
-			if($dp  instanceof Player)
-				$dp->sendMessage($this->translateString("undenyplayer.success2", [$plot->X,$plot->Z,$sender->getName()]));
+			$sender->sendMessage($this->translateString("undenyplayer.success1", [$dplayer->getName()]));
+			if($dplayer instanceof Player)
+				$dplayer->sendMessage($this->translateString("undenyplayer.success2", [$plot->X,$plot->Z,$sender->getName()]));
 		} else {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("error"));
 		}

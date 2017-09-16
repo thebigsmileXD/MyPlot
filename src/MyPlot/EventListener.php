@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace MyPlot;
 
 use pocketmine\block\Liquid;
@@ -42,7 +43,7 @@ class EventListener implements Listener
 			if ($settings === false) {
 				return;
 			}
-			$levelName = $event->getLevel()->getName();
+			$levelName = $event->getLevel()->getFolderName();
 			$filePath = $this->plugin->getDataFolder() . "worlds" . DIRECTORY_SEPARATOR . $levelName . ".yml";
 			$config = $this->plugin->getConfig();
 			$default = [
@@ -71,7 +72,7 @@ class EventListener implements Listener
 		if($event->isCancelled()) {
 			return;
 		}
-		$levelName = $event->getLevel()->getName();
+		$levelName = $event->getLevel()->getFolderName();
 		if($this->plugin->unloadLevelSettings($levelName)) {
 			$this->plugin->getLogger()->debug("Level ".$event->getLevel()->getFolderName()." unloaded!");
 		}
@@ -114,7 +115,7 @@ class EventListener implements Listener
 		if($event->isCancelled()) {
 			return;
 		}
-		$levelName = $event->getBlock()->getLevel()->getName();
+		$levelName = $event->getBlock()->getLevel()->getFolderName();
 		if (!$this->plugin->isLevelLoaded($levelName)) {
 			return;
 		}
@@ -160,7 +161,7 @@ class EventListener implements Listener
 		if($event->isCancelled()){
 			return;
 		}
-		$levelName = $event->getBlock()->getLevel()->getName();
+		$levelName = $event->getBlock()->getLevel()->getFolderName();
 		if ($this->plugin->isLevelLoaded($levelName)) {
 			if ($event->getBlock() instanceof Liquid) {
 				if ($this->plugin->getLevelSettings($levelName)->updatePlotLiquids and is_null($this->plugin->getPlotByPosition($event->getBlock()))) {
@@ -181,7 +182,7 @@ class EventListener implements Listener
 		if($event->isCancelled()) {
 			return;
 		}
-		$levelName = $event->getEntity()->getLevel()->getName();
+		$levelName = $event->getEntity()->getLevel()->getFolderName();
 		if (!$this->plugin->isLevelLoaded($levelName))
 			return;
 
@@ -214,7 +215,7 @@ class EventListener implements Listener
 		if($event->isCancelled()) {
 			return;
 		}
-		$levelName = $event->getEntity()->getLevel()->getName();
+		$levelName = $event->getEntity()->getLevel()->getFolderName();
 		if (!$this->plugin->isLevelLoaded($levelName))
 			return;
 
@@ -238,7 +239,7 @@ class EventListener implements Listener
 		if (!$this->plugin->getConfig()->get("ShowPlotPopup", true))
 			return;
 
-		$levelName = $event->getPlayer()->getLevel()->getName();
+		$levelName = $event->getPlayer()->getLevel()->getFolderName();
 		if (!$this->plugin->isLevelLoaded($levelName))
 			return;
 

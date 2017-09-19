@@ -411,14 +411,7 @@ class MyPlot extends PluginBase
 
 		$plotSize = $plotLevel->plotSize;
 		$pos = $this->getPlotPosition($plot);
-		if($plot->X >= 0 and $plot->Z >= 0)
-			$pos = new Position($pos->getFloorX() + floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + floor($plotSize / 2), $pos->getLevel());
-		if($plot->X < 0 and $plot->Z > 0)
-			$pos = new Position($pos->getFloorX() + -floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + floor($plotSize / 2), $pos->getLevel());
-		if($plot->X > 0 and $plot->Z < 0)
-			$pos = new Position($pos->getFloorX() + floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + -floor($plotSize / 2), $pos->getLevel());
-		if($plot->X < 0 and $plot->Z < 0)
-			$pos = new Position($pos->getFloorX() + -floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + -floor($plotSize / 2), $pos->getLevel());
+		$pos = new Position($pos->getFloorX() + ($plotSize / 2) + 0.5, $pos->getFloorY() + 1, $pos->getFloorZ() + ($plotSize / 2) + 0.5);
 
 		return $pos;
 	}

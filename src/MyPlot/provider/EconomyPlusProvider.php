@@ -2,16 +2,15 @@
 declare(strict_types=1);
 namespace MyPlot\provider;
 
-use EconomyPlus\EconomyPlus;
-
+use ImagicalGamer\EconomyPlus\Main;
 use pocketmine\Player;
 
 class EconomyPlusProvider implements EconomyProvider
 {
-	/** @var EconomyPlus $plugin */
+	/** @var Main $plugin */
 	public $plugin;
 
-	public function __construct(EconomyPlus $plugin)
+	public function __construct(Main $plugin)
 	{
 		$this->plugin = $plugin;
 	}
@@ -22,6 +21,13 @@ class EconomyPlusProvider implements EconomyProvider
 	 * @return bool
 	 */
 	public function reduceMoney(Player $player, float $amount) : bool {
-		return EconomyPlus::getInstance()->reduceMoney($player, $amount);
+		if($amount < 0) {
+			$amount = -$amount;
+		}
+		if($amount === 0) {
+			return false;
+		}
+		$this->plugin->subtractMoney($player, $amount);
+		return true;
 	}
 }

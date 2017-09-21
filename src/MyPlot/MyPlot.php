@@ -18,6 +18,10 @@ use onebone\economyapi\EconomyAPI;
 
 use EssentialsPE\Loader;
 
+use PocketMoney\PocketMoney;
+
+use ImagicalGamer\EconomyPlus\Main;
+
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\lang\BaseLang;
 use pocketmine\level\format\Chunk;
@@ -29,7 +33,6 @@ use pocketmine\level\generator\Generator;
 use pocketmine\Player;
 use pocketmine\level\Level;
 use pocketmine\utils\TextFormat as TF;
-use PocketMoney\PocketMoney;
 
 use spoondetector\SpoonDetector;
 
@@ -258,9 +261,9 @@ class MyPlot extends PluginBase
 			return false;
 		}
 		foreach($this->getServer()->getLevelByName($plot->levelName)->getEntities() as $entity) {
-			$plotb = $this->getPlotByPosition($entity);
-			if($plotb != null) {
-				if($plotb === $plot) {
+			$plotB = $this->getPlotByPosition($entity);
+			if($plotB != null) {
+				if($plotB === $plot) {
 					if(!$entity instanceof Player) {
 						$entity->close();
 					}
@@ -411,14 +414,7 @@ class MyPlot extends PluginBase
 
 		$plotSize = $plotLevel->plotSize;
 		$pos = $this->getPlotPosition($plot);
-		if($plot->X >= 0 and $plot->Z >= 0)
-			$pos = new Position($pos->getFloorX() + floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + floor($plotSize / 2), $pos->getLevel());
-		if($plot->X < 0 and $plot->Z > 0)
-			$pos = new Position($pos->getFloorX() + -floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + floor($plotSize / 2), $pos->getLevel());
-		if($plot->X > 0 and $plot->Z < 0)
-			$pos = new Position($pos->getFloorX() + floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + -floor($plotSize / 2), $pos->getLevel());
-		if($plot->X < 0 and $plot->Z < 0)
-			$pos = new Position($pos->getFloorX() + -floor($plotSize / 2), $pos->getFloorY() + 1, $pos->getFloorZ() + -floor($plotSize / 2), $pos->getLevel());
+		$pos = new Position($pos->getFloorX() + ($plotSize / 2) + 0.5, $pos->getFloorY() + 1, $pos->getFloorZ() + ($plotSize / 2) + 0.5);
 
 		return $pos;
 	}
@@ -441,7 +437,7 @@ class MyPlot extends PluginBase
 	/* -------------------------- Non-API part -------------------------- */
 
 	public function onEnable() {
-		@mkdir($this->getDataFolder());
+		@mkdir($this->getDataFolder()); // for spoon detector
 		SpoonDetector::printSpoon($this, "spoon.txt");
 
 		$this->getLogger()->notice(TF::BOLD."Loading...");
@@ -498,7 +494,7 @@ class MyPlot extends PluginBase
 				}
 				$this->getLogger()->debug("Eco not instance of PocketMoney");
 			} elseif(($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyPlus")) !== null) {
-				if($plugin instanceof EconomyPlus) {
+				if($plugin instanceof Main) {
 					$this->economyProvider = new EconomyPlusProvider($plugin);
 					$this->getLogger()->debug("Eco set to EconomyPlus");
 				}

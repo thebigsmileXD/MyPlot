@@ -4,15 +4,23 @@ namespace MyPlot\provider;
 
 use MyPlot\MyPlot;
 use MyPlot\Plot;
+
 use pocketmine\utils\Config;
 
 class JSONDataProvider extends DataProvider
 {
-	/** @var MyPlot */
+	/** @var MyPlot $plugin */
 	protected $plugin;
-	/** @var Config */
+
+	/** @var Config $json */
 	private $json;
 
+	/**
+	 * JSONDataProvider constructor.
+	 *
+	 * @param MyPlot $plugin
+	 * @param int $cacheSize
+	 */
 	public function __construct(MyPlot $plugin, int $cacheSize = 0) {
 		parent::__construct($plugin, $cacheSize);
 		$this->json = new Config($this->plugin->getDataFolder()."Data".DIRECTORY_SEPARATOR."plots.yml", Config::JSON, [
@@ -68,6 +76,7 @@ class JSONDataProvider extends DataProvider
 		$levelKeys = array_keys($plots, $levelName);
 		$xKeys = array_keys($plots, $X);
 		$zKeys = array_keys($plots, $Z);
+		/** @var int|null $key */
 		$key = null;
 		foreach($levelKeys as $levelKey) {
 			foreach($xKeys as $xKey) {
@@ -143,7 +152,7 @@ class JSONDataProvider extends DataProvider
 	 * @param int $limitXZ
 	 * @return Plot|null
 	 */
-	public function getNextFreePlot(string $levelName, int $limitXZ = 0){
+	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot {
 		$plotsArr = $this->json->get("plots", []);
 		for ($i = 0; $limitXZ <= 0 or $i < $limitXZ; $i++) {
 			$tmp = [];
@@ -187,7 +196,8 @@ class JSONDataProvider extends DataProvider
 		}
 		return null;
 	}
-	public function close(){
+
+	public function close() : void {
 		$this->json->save();
 		unset($this->json);
 	}

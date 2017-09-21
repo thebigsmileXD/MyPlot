@@ -20,10 +20,15 @@ use pocketmine\utils\TextFormat;
 
 class EventListener implements Listener
 {
-	/** @var MyPlot */
+	/** @var MyPlot $plugin */
 	private $plugin;
 
-	public function __construct(MyPlot $plugin){
+	/**
+	 * EventListener constructor.
+	 *
+	 * @param MyPlot $plugin
+	 */
+	public function __construct(MyPlot $plugin) {
 		$this->plugin = $plugin;
 	}
 
@@ -32,7 +37,7 @@ class EventListener implements Listener
 	 *
 	 * @param LevelLoadEvent $event
 	 */
-	public function onLevelLoad(LevelLoadEvent $event) {
+	public function onLevelLoad(LevelLoadEvent $event) : void {
 		if ($event->getLevel()->getProvider()->getGenerator() == "myplot") {
 			$this->plugin->getLogger()->debug("MyPlot level ".$event->getLevel()->getFolderName()." loaded!");
 			$settings = $event->getLevel()->getProvider()->getGeneratorOptions();
@@ -68,7 +73,7 @@ class EventListener implements Listener
 	 *
 	 * @param LevelUnloadEvent $event
 	 */
-	public function onLevelUnload(LevelUnloadEvent $event) {
+	public function onLevelUnload(LevelUnloadEvent $event) : void {
 		if($event->isCancelled()) {
 			return;
 		}
@@ -84,7 +89,7 @@ class EventListener implements Listener
 	 *
 	 * @param BlockPlaceEvent $event
 	 */
-	public function onBlockPlace(BlockPlaceEvent $event) {
+	public function onBlockPlace(BlockPlaceEvent $event) : void {
 		$this->onEventOnBlock($event);
 	}
 
@@ -94,7 +99,7 @@ class EventListener implements Listener
 	 *
 	 * @param BlockBreakEvent $event
 	 */
-	public function onBlockBreak(BlockBreakEvent $event) {
+	public function onBlockBreak(BlockBreakEvent $event) : void {
 		$this->onEventOnBlock($event);
 	}
 
@@ -104,14 +109,14 @@ class EventListener implements Listener
 	 *
 	 * @param PlayerInteractEvent $event
 	 */
-	public function onPlayerInteract(PlayerInteractEvent $event) {
+	public function onPlayerInteract(PlayerInteractEvent $event) : void {
 		$this->onEventOnBlock($event);
 	}
 
 	/**
 	 * @param BlockPlaceEvent|BlockBreakEvent|PlayerInteractEvent $event
 	 */
-	private function onEventOnBlock($event) {
+	private function onEventOnBlock($event) : void {
 		if($event->isCancelled()) {
 			return;
 		}
@@ -157,7 +162,7 @@ class EventListener implements Listener
 	 *
 	 * @param BlockUpdateEvent $event
 	 */
-	public function onBlockUpdate(BlockUpdateEvent $event) {
+	public function onBlockUpdate(BlockUpdateEvent $event) : void {
 		if($event->isCancelled()){
 			return;
 		}
@@ -178,7 +183,7 @@ class EventListener implements Listener
 	 *
 	 * @param EntityExplodeEvent $event
 	 */
-	public function onExplosion(EntityExplodeEvent $event) {
+	public function onExplosion(EntityExplodeEvent $event) : void {
 		if($event->isCancelled()) {
 			return;
 		}
@@ -211,7 +216,7 @@ class EventListener implements Listener
 	 *
 	 * @param EntityMotionEvent $event
 	 */
-	public function onEntityMotion(EntityMotionEvent $event) {
+	public function onEntityMotion(EntityMotionEvent $event) : void {
 		if($event->isCancelled()) {
 			return;
 		}
@@ -232,7 +237,7 @@ class EventListener implements Listener
 	 *
 	 * @param PlayerMoveEvent $event
 	 */
-	public function onPlayerMove(PlayerMoveEvent $event) {
+	public function onPlayerMove(PlayerMoveEvent $event) : void {
 		if($event->isCancelled()) {
 			return;
 		}

@@ -7,13 +7,19 @@ use MyPlot\Plot;
 
 abstract class DataProvider
 {
-	/** @var Plot[] */
+	/** @var Plot[] $cache */
 	private $cache = [];
-	/** @var int */
+	/** @var int $cacheSize */
 	private $cacheSize;
-	/** @var MyPlot */
+	/** @var MyPlot $plugin */
 	protected $plugin;
 
+	/**
+	 * DataProvider constructor.
+	 *
+	 * @param MyPlot $plugin
+	 * @param int $cacheSize
+	 */
 	public function __construct(MyPlot $plugin, int $cacheSize = 0) {
 		$this->plugin = $plugin;
 		$this->cacheSize = $cacheSize;
@@ -22,7 +28,7 @@ abstract class DataProvider
 	/**
 	 * @param Plot $plot
 	 */
-	protected final function cachePlot(Plot $plot) {
+	protected final function cachePlot(Plot $plot) : void {
 		if ($this->cacheSize > 0) {
 			$key = $plot->levelName . ';' . $plot->X . ';' . $plot->Z;
 			if (isset($this->cache[$key])) {
@@ -41,7 +47,7 @@ abstract class DataProvider
 	 * @param $Z
 	 * @return Plot|null
 	 */
-	protected final function getPlotFromCache(string $levelName, int $X, int $Z) {
+	protected final function getPlotFromCache(string $levelName, int $X, int $Z) : ?Plot {
 		if ($this->cacheSize > 0) {
 			$key = $levelName . ';' . $X . ';' . $Z;
 			if (isset($this->cache[$key])) {
@@ -84,9 +90,9 @@ abstract class DataProvider
 	 * @param int $limitXZ
 	 * @return Plot|null
 	 */
-	public abstract function getNextFreePlot(string $levelName, int $limitXZ = 0);
+	public abstract function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot;
 
-	public abstract function close();
+	public abstract function close(): void;
 
 	/**
 	 * @param int $a
@@ -94,7 +100,7 @@ abstract class DataProvider
 	 * @param array[] $plots
 	 * @return array|null
 	 */
-	protected static function findEmptyPlotSquared(int $a, int $b, array $plots) {
+	protected static function findEmptyPlotSquared(int $a, int $b, array $plots) : ?array {
 		if (!isset($plots[$a][$b])) return array($a, $b);
 		if (!isset($plots[$b][$a])) return array($b, $a);
 		if ($a !== 0) {

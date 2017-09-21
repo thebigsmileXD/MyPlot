@@ -74,7 +74,7 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @return EconomyProvider
 	 */
-	public function getEconomyProvider() {
+	public function getEconomyProvider() : EconomyProvider {
 		return $this->economyProvider;
 	}
 
@@ -85,7 +85,7 @@ class MyPlot extends PluginBase
 	 * @param string $levelName
 	 * @return PlotLevelSettings|null
 	 */
-	public function getLevelSettings(string $levelName) {
+	public function getLevelSettings(string $levelName) : ?PlotLevelSettings {
 		if (isset($this->levels[$levelName])) {
 			return $this->levels[$levelName];
 		}
@@ -111,7 +111,7 @@ class MyPlot extends PluginBase
 	 * @param array $settings
 	 * @return bool
 	 */
-	public function generateLevel(string $levelName, array $settings = []) {
+	public function generateLevel(string $levelName, array $settings = []) : bool {
 		if ($this->getServer()->isLevelGenerated($levelName) === true) {
 			return false;
 		}
@@ -155,7 +155,7 @@ class MyPlot extends PluginBase
 	 * @param int $limitXZ
 	 * @return Plot|null
 	 */
-	public function getNextFreePlot(string $levelName, int $limitXZ = 0) {
+	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot {
 		return $this->dataProvider->getNextFreePlot($levelName, $limitXZ);
 	}
 
@@ -166,7 +166,7 @@ class MyPlot extends PluginBase
 	 * @param Position $position
 	 * @return Plot|null
 	 */
-	public function getPlotByPosition(Position $position) {
+	public function getPlotByPosition(Position $position) : ?Plot {
 		$x = $position->x;
 		$z = $position->z;
 		$levelName = $position->level->getFolderName();
@@ -210,7 +210,7 @@ class MyPlot extends PluginBase
 	 * @param Plot $plot
 	 * @return Position|null
 	 */
-	public function getPlotPosition(Plot $plot) {
+	public function getPlotPosition(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
 		if ($plotLevel === null) {
 			return null;
@@ -406,7 +406,7 @@ class MyPlot extends PluginBase
 	 * @param Plot $plot
 	 * @return Position|null
 	 */
-	public function getPlotMid(Plot $plot) {
+	public function getPlotMid(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
 		if ($plotLevel === null) {
 			return null;
@@ -436,7 +436,7 @@ class MyPlot extends PluginBase
 
 	/* -------------------------- Non-API part -------------------------- */
 
-	public function onEnable() {
+	public function onEnable() : void {
 		@mkdir($this->getDataFolder()); // for spoon detector
 		SpoonDetector::printSpoon($this, "spoon.txt");
 
@@ -529,7 +529,7 @@ class MyPlot extends PluginBase
 		return false;
 	}
 
-	public function onDisable() {
+	public function onDisable() : void {
 		if ($this->dataProvider !== null) {
 			$this->dataProvider->close();
 		}

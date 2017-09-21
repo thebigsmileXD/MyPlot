@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace MyPlot;
 
-use MyPlot\subcommand\MiddleSubCommand;
 use pocketmine\command\PluginCommand;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
@@ -17,6 +16,7 @@ use MyPlot\subcommand\HelpSubCommand;
 use MyPlot\subcommand\HomeSubCommand;
 use MyPlot\subcommand\InfoSubCommand;
 use MyPlot\subcommand\ListSubCommand;
+use MyPlot\subcommand\MiddleSubCommand;
 use MyPlot\subcommand\HomesSubCommand;
 use MyPlot\subcommand\ResetSubCommand;
 use MyPlot\subcommand\RemoveHelperSubCommand;
@@ -40,6 +40,11 @@ class Commands extends PluginCommand
 	/** @var MyPlot  */
 	private $plugin;
 
+	/**
+	 * Commands constructor.
+	 *
+	 * @param MyPlot $plugin
+	 */
 	public function __construct(MyPlot $plugin) {
 		  $this->plugin = $plugin;
 		parent::__construct($plugin->getLanguage()->get("command.name"), $plugin);
@@ -82,7 +87,7 @@ class Commands extends PluginCommand
 	/**
 	 * @param SubCommand $command
 	 */
-	private function loadSubCommand(SubCommand $command) {
+	private function loadSubCommand(SubCommand $command) : void {
 		$this->subCommands[$command->getName()] = $command;
 		if ($command->getAlias() != "") {
 			$this->aliasSubCommands[$command->getAlias()] = $command;
@@ -95,7 +100,7 @@ class Commands extends PluginCommand
 	 * @param string[] $args
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $alias, array $args) {
+	public function execute(CommandSender $sender, string $alias, array $args) : bool {
 		if (!isset($args[0])) {
 			return false;
 		}

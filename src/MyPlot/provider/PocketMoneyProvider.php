@@ -2,14 +2,20 @@
 declare(strict_types=1);
 namespace MyPlot\provider;
 
-use pocketmine\Player;
 use PocketMoney\PocketMoney;
+
+use pocketmine\Player;
 
 class PocketMoneyProvider implements EconomyProvider
 {
-	/** @var PocketMoney */
+	/** @var PocketMoney $plugin */
 	private $plugin;
 
+	/**
+	 * PocketMoneyProvider constructor.
+	 *
+	 * @param PocketMoney $plugin
+	 */
 	public function __construct(PocketMoney $plugin) {
 		$this->plugin = $plugin;
 	}
@@ -17,13 +23,16 @@ class PocketMoneyProvider implements EconomyProvider
 	/**
 	 * @param Player $player
 	 * @param float $amount
+	 *
 	 * @return bool
 	 */
 	public function reduceMoney(Player $player, float $amount) : bool {
-		$money = $this->plugin->getMoney($player->getName());
-		if($amount == 0) {
+		if ($amount === 0) {
 			return true;
+		} elseif ($amount < 0) {
+			$amount = -$amount;
 		}
+		$money = $this->plugin->getMoney($player->getName());
 		if ($money === false or ($money - $amount) < 0) {
 			return false;
 		}

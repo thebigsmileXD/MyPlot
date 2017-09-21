@@ -7,13 +7,13 @@ use MyPlot\Plot;
 
 class MySQLProvider extends DataProvider
 {
-	/** @var MyPlot */
+	/** @var MyPlot $plugin */
 	protected $plugin;
 
 	/** @var \mysqli $db */
 	private $db;
 
-	/** @var array */
+	/** @var array $settings */
 	private $settings;
 
 	/** @var \mysqli_stmt */
@@ -44,12 +44,12 @@ class MySQLProvider extends DataProvider
 		$this->plugin->getLogger()->debug("MySQL data provider registered");
 	}
 
-	public function close() {
-		$this->db->close();
-		$this->plugin->getLogger()->debug("MySQL database closed!");
-	}
-
-	public function savePlot(Plot $plot): bool{
+	/**
+	 * @param Plot $plot
+	 *
+	 * @return bool
+	 */
+	public function savePlot(Plot $plot) : bool {
 		$this->reconnect();
 		$helpers = implode(',', $plot->helpers);
 		$denied = implode(',', $plot->denied);
@@ -71,7 +71,12 @@ class MySQLProvider extends DataProvider
 		return true;
 	}
 
-	public function deletePlot(Plot $plot): bool{
+	/**
+	 * @param Plot $plot
+	 *
+	 * @return bool
+	 */
+	public function deletePlot(Plot $plot) : bool {
 		$this->reconnect();
 
 		if($plot->id >= 0) {
@@ -91,7 +96,13 @@ class MySQLProvider extends DataProvider
 		return true;
 	}
 
-	public function getPlot(string $levelName, int $X, int $Z): Plot{
+	/**
+	 * @param string $levelName
+	 * @param int $X
+	 *
+	 * @return Plot
+	 */
+	public function getPlot(string $levelName, int $X, int $Z) : Plot {
 		$this->reconnect();
 
 		if(($plot = $this->getPlotFromCache($levelName, $X, $Z)) != null) {
@@ -125,7 +136,13 @@ class MySQLProvider extends DataProvider
 		return $plot;
 	}
 
-	public function getPlotsByOwner(string $owner, string $levelName = ""): array{
+	/**
+	 * @param string $owner
+	 * @param string $levelName
+	 *
+	 * @return array
+	 */
+	public function getPlotsByOwner(string $owner, string $levelName = "") : array {
 		$this->reconnect();
 
 		if(empty($levelName)) {
@@ -159,7 +176,13 @@ class MySQLProvider extends DataProvider
 		return $plots;
 	}
 
-	public function getNextFreePlot(string $levelName, int $limitXZ = 0) {
+	/**
+	 * @param string $levelName
+	 * @param int $limitXZ
+	 *
+	 * @return Plot|null
+	 */
+	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot {
 		$this->reconnect();
 
 		$i = 0;
@@ -203,6 +226,14 @@ class MySQLProvider extends DataProvider
 		return null;
 	}
 
+	public function close() : void {
+		$this->db->close();
+		$this->plugin->getLogger()->debug("MySQL database closed!");
+	}
+	
+	/**
+	 * @return bool
+	 */
 	private function reconnect() : bool {
 		if(!$this->db->ping()) {
 			$this->plugin->getLogger()->error("The MySQL server can not be reached! Trying to reconnect!");
@@ -226,8 +257,8 @@ class MySQLProvider extends DataProvider
 		}
 		return true;
 	}
-
-	private function prepare(){
+	
+	private function prepare() : void {
 		$this->sqlGetPlot = $this->db->prepare(
 			"SELECT id, name, owner, helpers, denied, biome FROM plots WHERE level = ? AND X = ? AND Z = ?;"
 		);

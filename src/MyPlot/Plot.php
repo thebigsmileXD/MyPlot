@@ -4,9 +4,11 @@ namespace MyPlot;
 
 class Plot
 {
-	public $levelName, $X, $Z, $name = "", $owner = "", $helpers = [], $denied = [], $biome = "PLAINS", $id = -1;
+	public $levelName = "", $X = -0, $Z = -0, $name = "", $owner = "", $helpers = [], $denied = [], $biome = "PLAINS", $id = -1;
 
 	/**
+	 * Plot constructor.
+	 *
 	 * @param string $levelName
 	 * @param int $X
 	 * @param int $Z
@@ -34,7 +36,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function isHelper(string $username) {
+	public function isHelper(string $username) : bool {
 		return in_array($username, $this->helpers);
 	}
 
@@ -43,7 +45,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function addHelper(string $username) {
+	public function addHelper(string $username) : bool {
 		if (!$this->isHelper($username)) {
 			$this->unDenyPlayer($username);
 			$this->helpers[] = $username;
@@ -57,7 +59,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function removeHelper(string $username) {
+	public function removeHelper(string $username) : bool {
 		if(!$this->isHelper($username)) {
 			return false;
 		}
@@ -74,7 +76,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function isDenied(string $username) {
+	public function isDenied(string $username) : bool {
 		return in_array($username, $this->denied);
 	}
 
@@ -83,7 +85,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function denyPlayer(string $username) {
+	public function denyPlayer(string $username) : bool {
 		if (!$this->isDenied($username)) {
 			$this->removeHelper($username);
 			$this->denied[] = $username;
@@ -97,7 +99,7 @@ class Plot
 	 * @param string $username
 	 * @return bool
 	 */
-	public function unDenyPlayer(string $username) {
+	public function unDenyPlayer(string $username) : bool {
 		if(!$this->isDenied($username)) {
 			return false;
 		}
@@ -109,7 +111,10 @@ class Plot
 		return true;
 	}
 
-	public function __toString() {
+	/**
+	 * @return string
+	 */
+	public function __toString() : string {
 		return "(" . $this->X . ";" . $this->Z . ")";
 	}
 }

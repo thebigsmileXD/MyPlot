@@ -18,6 +18,10 @@ use onebone\economyapi\EconomyAPI;
 
 use EssentialsPE\Loader;
 
+use PocketMoney\PocketMoney;
+
+use ImagicalGamer\EconomyPlus\Main;
+
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\lang\BaseLang;
 use pocketmine\level\format\Chunk;
@@ -29,7 +33,6 @@ use pocketmine\level\generator\Generator;
 use pocketmine\Player;
 use pocketmine\level\Level;
 use pocketmine\utils\TextFormat as TF;
-use PocketMoney\PocketMoney;
 
 use spoondetector\SpoonDetector;
 
@@ -71,7 +74,7 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @return EconomyProvider
 	 */
-	public function getEconomyProvider() {
+	public function getEconomyProvider() : EconomyProvider {
 		return $this->economyProvider;
 	}
 
@@ -82,7 +85,7 @@ class MyPlot extends PluginBase
 	 * @param string $levelName
 	 * @return PlotLevelSettings|null
 	 */
-	public function getLevelSettings(string $levelName) {
+	public function getLevelSettings(string $levelName) : ?PlotLevelSettings {
 		if (isset($this->levels[$levelName])) {
 			return $this->levels[$levelName];
 		}
@@ -108,7 +111,7 @@ class MyPlot extends PluginBase
 	 * @param array $settings
 	 * @return bool
 	 */
-	public function generateLevel(string $levelName, array $settings = []) {
+	public function generateLevel(string $levelName, array $settings = []) : bool {
 		if ($this->getServer()->isLevelGenerated($levelName) === true) {
 			return false;
 		}
@@ -152,7 +155,7 @@ class MyPlot extends PluginBase
 	 * @param int $limitXZ
 	 * @return Plot|null
 	 */
-	public function getNextFreePlot(string $levelName, int $limitXZ = 0) {
+	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot {
 		return $this->dataProvider->getNextFreePlot($levelName, $limitXZ);
 	}
 
@@ -163,7 +166,7 @@ class MyPlot extends PluginBase
 	 * @param Position $position
 	 * @return Plot|null
 	 */
-	public function getPlotByPosition(Position $position) {
+	public function getPlotByPosition(Position $position) : ?Plot {
 		$x = $position->x;
 		$z = $position->z;
 		$levelName = $position->level->getFolderName();
@@ -207,7 +210,7 @@ class MyPlot extends PluginBase
 	 * @param Plot $plot
 	 * @return Position|null
 	 */
-	public function getPlotPosition(Plot $plot) {
+	public function getPlotPosition(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
 		if ($plotLevel === null) {
 			return null;
@@ -258,9 +261,9 @@ class MyPlot extends PluginBase
 			return false;
 		}
 		foreach($this->getServer()->getLevelByName($plot->levelName)->getEntities() as $entity) {
-			$plotb = $this->getPlotByPosition($entity);
-			if($plotb != null) {
-				if($plotb === $plot) {
+			$plotB = $this->getPlotByPosition($entity);
+			if($plotB != null) {
+				if($plotB === $plot) {
 					if(!$entity instanceof Player) {
 						$entity->close();
 					}
@@ -403,7 +406,7 @@ class MyPlot extends PluginBase
 	 * @param Plot $plot
 	 * @return Position|null
 	 */
-	public function getPlotMid(Plot $plot) {
+	public function getPlotMid(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
 		if ($plotLevel === null) {
 			return null;
@@ -433,8 +436,8 @@ class MyPlot extends PluginBase
 
 	/* -------------------------- Non-API part -------------------------- */
 
-	public function onEnable() {
-		@mkdir($this->getDataFolder());
+	public function onEnable() : void {
+		@mkdir($this->getDataFolder()); // for spoon detector
 		SpoonDetector::printSpoon($this, "spoon.txt");
 
 		$this->getLogger()->notice(TF::BOLD."Loading...");
@@ -491,7 +494,7 @@ class MyPlot extends PluginBase
 				}
 				$this->getLogger()->debug("Eco not instance of PocketMoney");
 			} elseif(($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyPlus")) !== null) {
-				if($plugin instanceof EconomyPlus) {
+				if($plugin instanceof Main) {
 					$this->economyProvider = new EconomyPlusProvider($plugin);
 					$this->getLogger()->debug("Eco set to EconomyPlus");
 				}
@@ -526,7 +529,7 @@ class MyPlot extends PluginBase
 		return false;
 	}
 
-	public function onDisable() {
+	public function onDisable() : void {
 		if ($this->dataProvider !== null) {
 			$this->dataProvider->close();
 		}

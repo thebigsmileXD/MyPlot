@@ -16,6 +16,13 @@ class ClearPlotTask extends PluginTask {
 
 	private $level, $height, $bottomBlock, $plotFillBlock, $plotFloorBlock, $plotBeginPos, $xMax, $zMax, $maxBlocksPerTick, $pos;
 
+	/**
+	 * ClearPlotTask constructor.
+	 *
+	 * @param MyPlot $plugin
+	 * @param Plot $plot
+	 * @param int $maxBlocksPerTick
+	 */
 	public function __construct(MyPlot $plugin, Plot $plot, $maxBlocksPerTick = 256) {
 		parent::__construct($plugin);
 		$this->plotBeginPos = $plugin->getPlotPosition($plot);
@@ -34,7 +41,10 @@ class ClearPlotTask extends PluginTask {
 		$this->plugin->getLogger()->debug("Clear Task started at plot {$plot->X};{$plot->Z}");
 	}
 
-	public function onRun(int $currentTick) {
+	/**
+	 * @param int $currentTick
+	 */
+	public function onRun(int $currentTick) : void {
 		foreach ($this->level->getEntities() as $entity) {
 			if (($plot = $this->plugin->getPlotByPosition($entity)) != null) {
 				if ($plot->X === $this->plotBeginPos->x and $plot->Z === $this->plotBeginPos->z) {

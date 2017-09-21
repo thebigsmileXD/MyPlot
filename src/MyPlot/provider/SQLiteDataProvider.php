@@ -7,14 +7,17 @@ use MyPlot\Plot;
 
 class SQLiteDataProvider extends DataProvider
 {
-	/** @var \SQLite3 */
+	/** @var \SQLite3 $db */
 	private $db;
 
 	/** @var \SQLite3Stmt */
 	private $sqlGetPlot, $sqlSavePlot, $sqlSavePlotById, $sqlRemovePlot,
 			$sqlRemovePlotById, $sqlGetPlotsByOwner, $sqlGetPlotsByOwnerAndLevel,
 			$sqlGetExistingXZ;
+
 	/**
+	 * SQLiteDataProvider constructor.
+	 *
 	 * @param MyPlot $plugin
 	 * @param int $cacheSize
 	 */
@@ -58,11 +61,11 @@ class SQLiteDataProvider extends DataProvider
 		$this->plugin->getLogger()->debug("SQLite data provider registered");
 	}
 
-	public function close() {
-		$this->db->close();
-		$this->plugin->getLogger()->debug("SQLite database closed!");
-	}
-
+	/**
+	 * @param Plot $plot
+	 *
+	 * @return bool
+	 */
 	public function savePlot(Plot $plot) : bool {
 		$helpers = implode(",", $plot->helpers);
 		$denied = implode(",",$plot->denied);
@@ -89,6 +92,11 @@ class SQLiteDataProvider extends DataProvider
 		return true;
 	}
 
+	/**
+	 * @param Plot $plot
+	 *
+	 * @return bool
+	 */
 	public function deletePlot(Plot $plot) : bool {
 		if ($plot->id >= 0) {
 			$stmt = $this->sqlRemovePlotById;
@@ -109,6 +117,13 @@ class SQLiteDataProvider extends DataProvider
 		return true;
 	}
 
+	/**
+	 * @param string $levelName
+	 * @param int $X
+	 * @param int $Z
+	 *
+	 * @return Plot
+	 */
 	public function getPlot(string $levelName, int $X, int $Z) : Plot {
 		if (($plot = $this->getPlotFromCache($levelName, $X, $Z)) != null) {
 			return $plot;
@@ -138,6 +153,12 @@ class SQLiteDataProvider extends DataProvider
 		return $plot;
 	}
 
+	/**
+	 * @param string $owner
+	 * @param string $levelName
+	 *
+	 * @return array
+	 */
 	public function getPlotsByOwner(string $owner, string $levelName = "") : array {
 		if ($levelName === "") {
 			$stmt = $this->sqlGetPlotsByOwner;
@@ -168,7 +189,13 @@ class SQLiteDataProvider extends DataProvider
 		return $plots;
 	}
 
-	public function getNextFreePlot(string $levelName, int $limitXZ = 0) {
+	/**
+	 * @param string $levelName
+	 * @param int $limitXZ
+	 *
+	 * @return Plot|null
+	 */
+	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot {
 		$this->sqlGetExistingXZ->bindValue(":level", $levelName, SQLITE3_TEXT);
 		$i = 0;
 		$this->sqlGetExistingXZ->bindParam(":number", $i, SQLITE3_INTEGER);
@@ -205,5 +232,10 @@ class SQLiteDataProvider extends DataProvider
 			}
 		}
 		return null;
+	}
+
+	public function close() : void {
+		$this->db->close();
+		$this->plugin->getLogger()->debug("SQLite database closed!");
 	}
 }

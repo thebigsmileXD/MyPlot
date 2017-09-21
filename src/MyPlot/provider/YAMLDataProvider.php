@@ -8,11 +8,18 @@ use pocketmine\utils\Config;
 
 class YAMLDataProvider extends DataProvider
 {
-	/** @var MyPlot */
+	/** @var MyPlot $plugin */
 	protected $plugin;
-	/** @var Config */
+
+	/** @var Config $yaml */
 	private $yaml;
 
+	/**
+	 * YAMLDataProvider constructor.
+	 *
+	 * @param MyPlot $plugin
+	 * @param int $cacheSize
+	 */
 	public function __construct(MyPlot $plugin, int $cacheSize = 0) {
 		parent::__construct($plugin, $cacheSize);
 		$this->yaml = new Config($this->plugin->getDataFolder()."Data".DIRECTORY_SEPARATOR."plots.yml", Config::YAML, [
@@ -23,6 +30,7 @@ class YAMLDataProvider extends DataProvider
 
 	/**
 	 * @param Plot $plot
+	 *
 	 * @return bool
 	 */
 	public function savePlot(Plot $plot) : bool {
@@ -41,9 +49,10 @@ class YAMLDataProvider extends DataProvider
 		$this->cachePlot($plot);
 		return $this->yaml->save();
 	}
-	
+
 	/**
 	 * @param Plot $plot
+	 *
 	 * @return bool
 	 */
 	public function deletePlot(Plot $plot) : bool {
@@ -58,6 +67,7 @@ class YAMLDataProvider extends DataProvider
 	 * @param string $levelName
 	 * @param int $X
 	 * @param int $Z
+	 *
 	 * @return Plot
 	 */
 	public function getPlot(string $levelName, int $X, int $Z) : Plot {
@@ -98,6 +108,7 @@ class YAMLDataProvider extends DataProvider
 	/**
 	 * @param string $owner
 	 * @param string $levelName
+	 *
 	 * @return Plot[]
 	 */
 	public function getPlotsByOwner(string $owner, string $levelName = "") : array {
@@ -143,9 +154,10 @@ class YAMLDataProvider extends DataProvider
 	/**
 	 * @param string $levelName
 	 * @param int $limitXZ
+	 *
 	 * @return Plot|null
 	 */
-	public function getNextFreePlot(string $levelName, int $limitXZ = 0){
+	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?plot {
 		$plotsArr = $this->yaml->get("plots", []);
 		for ($i = 0; $limitXZ <= 0 or $i < $limitXZ; $i++) {
 			$tmp = [];
@@ -189,7 +201,8 @@ class YAMLDataProvider extends DataProvider
 		}
 		return null;
 	}
-	public function close(){
+
+	public function close() : void {
 		unset($this->yaml);
 	}
 }

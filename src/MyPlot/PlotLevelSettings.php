@@ -15,6 +15,12 @@ class PlotLevelSettings
 	/** @var bool  */
 	public $restrictEntityMovement = true, $updatePlotLiquids = false;
 
+	/**
+	 * PlotLevelSettings constructor.
+	 *
+	 * @param string $name
+	 * @param array $settings
+	 */
 	public function __construct(string $name, array $settings = []) {
 		$this->name = $name;
 		if (!empty($settings)) {

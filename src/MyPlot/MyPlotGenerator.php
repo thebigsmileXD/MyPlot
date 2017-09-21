@@ -26,6 +26,11 @@ class MyPlotGenerator extends Generator
 	const ROAD = 1;
 	const WALL = 2;
 
+	/**
+	 * MyPlotGenerator constructor.
+	 *
+	 * @param array $settings
+	 */
 	public function __construct(array $settings = []) {
 		if (isset($settings["preset"])) {
 			$settings = json_decode($settings["preset"], true);

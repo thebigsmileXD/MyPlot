@@ -160,18 +160,18 @@ class YAMLDataProvider extends DataProvider
 	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?plot {
 		$plotsArr = $this->yaml->get("plots", []);
 		for ($i = 0; $limitXZ <= 0 or $i < $limitXZ; $i++) {
-			$tmp = [];
+			$existing = [];
 			foreach($plotsArr as $id => $data) {
 				if($data["level"] === $levelName) {
 					if(abs($data["x"]) === $i and abs($data["z"]) <= $i) {
-						$tmp[] = [$data["x"], $data["z"]];
+						$existing[] = [$data["x"], $data["z"]];
 					}elseif(abs($data["z"]) === $i and abs($data["x"]) <= $i) {
-						$tmp[] = [$data["x"], $data["z"]];
+						$existing[] = [$data["x"], $data["z"]];
 					}
 				}
 			}
 			$plots = [];
-			foreach($tmp as $arr) {
+			foreach($existing as $arr) {
 				$plots[$arr[0]][$arr[1]] = true;
 			}
 			if (count($plots) === max(1, 8 * $i)) {

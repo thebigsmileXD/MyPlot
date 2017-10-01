@@ -51,7 +51,10 @@ class MyPlot extends PluginBase
 	private $baseLang = null;
 
 	/**
+	 * Returns the Multi-lang management class
+	 *
 	 * @api
+	 *
 	 * @return BaseLang
 	 */
 	public function getLanguage() : BaseLang {
@@ -62,6 +65,7 @@ class MyPlot extends PluginBase
 	 * Returns the DataProvider that is being used
 	 *
 	 * @api
+	 *
 	 * @return DataProvider
 	 */
 	public function getProvider() : DataProvider {
@@ -72,6 +76,7 @@ class MyPlot extends PluginBase
 	 * Returns the EconomyProvider that is being used
 	 *
 	 * @api
+	 *
 	 * @return EconomyProvider
 	 */
 	public function getEconomyProvider() : EconomyProvider {
@@ -83,6 +88,7 @@ class MyPlot extends PluginBase
 	 *
 	 * @api
 	 * @param string $levelName
+	 *
 	 * @return PlotLevelSettings|null
 	 */
 	public function getLevelSettings(string $levelName) : ?PlotLevelSettings {
@@ -97,6 +103,7 @@ class MyPlot extends PluginBase
 	 *
 	 * @api
 	 * @param string $levelName
+	 *
 	 * @return bool
 	 */
 	public function isLevelLoaded(string $levelName) : bool {
@@ -109,6 +116,7 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @param string $levelName
 	 * @param array $settings
+	 *
 	 * @return bool
 	 */
 	public function generateLevel(string $levelName, array $settings = []) : bool {
@@ -129,6 +137,7 @@ class MyPlot extends PluginBase
 	 *
 	 * @api
 	 * @param Plot $plot
+	 *
 	 * @return bool
 	 */
 	public function savePlot(Plot $plot) : bool {
@@ -141,6 +150,7 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @param string $username
 	 * @param string $levelName
+	 *
 	 * @return Plot[]
 	 */
 	public function getPlotsOfPlayer(string $username, string $levelName) : array {
@@ -153,6 +163,7 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @param string $levelName
 	 * @param int $limitXZ
+	 *
 	 * @return Plot|null
 	 */
 	public function getNextFreePlot(string $levelName, int $limitXZ = 0) : ?Plot {
@@ -164,6 +175,7 @@ class MyPlot extends PluginBase
 	 *
 	 * @api
 	 * @param Position $position
+	 *
 	 * @return Plot|null
 	 */
 	public function getPlotByPosition(Position $position) : ?Plot {
@@ -208,6 +220,7 @@ class MyPlot extends PluginBase
 	 *
 	 * @api
 	 * @param Plot $plot
+	 *
 	 * @return Position|null
 	 */
 	public function getPlotPosition(Plot $plot) : ?Position {
@@ -232,6 +245,7 @@ class MyPlot extends PluginBase
 	 * @param Player $player
 	 * @param Plot $plot
 	 * @param bool $center
+	 *
 	 * @return bool
 	 */
 	public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
@@ -254,9 +268,10 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @param Plot $plot
 	 * @param int $maxBlocksPerTick
+	 *
 	 * @return bool
 	 */
-	public function clearPlot(Plot $plot, $maxBlocksPerTick = 256) : bool {
+	public function clearPlot(Plot $plot, int $maxBlocksPerTick = 256) : bool {
 		if (!$this->isLevelLoaded($plot->levelName)) {
 			return false;
 		}
@@ -277,7 +292,9 @@ class MyPlot extends PluginBase
 	/**
 	 * Delete the plot data
 	 *
+	 * @api
 	 * @param Plot $plot
+	 *
 	 * @return bool
 	 */
 	public function disposePlot(Plot $plot) : bool {
@@ -287,8 +304,10 @@ class MyPlot extends PluginBase
 	/**
 	 * Clear and dispose a plot
 	 *
+	 * @api
 	 * @param Plot $plot
 	 * @param int $maxBlocksPerTick
+	 *
 	 * @return bool
 	 */
 	public function resetPlot(Plot $plot, int $maxBlocksPerTick = 256) : bool {
@@ -304,6 +323,7 @@ class MyPlot extends PluginBase
 	 * @api
 	 * @param Plot $plot
 	 * @param Biome $biome
+	 *
 	 * @return bool
 	 */
 	public function setPlotBiome(Plot $plot, Biome $biome) : bool {
@@ -333,6 +353,7 @@ class MyPlot extends PluginBase
 	 * Returns the PlotLevelSettings of all the loaded levels
 	 *
 	 * @api
+	 *
 	 * @return PlotLevelSettings[]
 	 */
 	public function getPlotLevels() : array {
@@ -342,7 +363,9 @@ class MyPlot extends PluginBase
 	/**
 	 * Returns the Chunks contained in a plot
 	 *
+	 * @api
 	 * @param Plot $plot
+	 *
 	 * @return Chunk[]
 	 */
 	public function getPlotChunks(Plot $plot) : array {
@@ -376,7 +399,9 @@ class MyPlot extends PluginBase
 	/**
 	 * Get the maximum number of plots a player can claim
 	 *
+	 * @api
 	 * @param Player $player
+	 *
 	 * @return int
 	 */
 	public function getMaxPlotsOfPlayer(Player $player) : int {
@@ -403,7 +428,9 @@ class MyPlot extends PluginBase
 	/**
 	 * Finds the exact center of the plot at ground level
 	 *
+	 * @api
 	 * @param Plot $plot
+	 *
 	 * @return Position|null
 	 */
 	public function getPlotMid(Plot $plot) : ?Position {
@@ -422,8 +449,10 @@ class MyPlot extends PluginBase
 	/**
 	 * Teleports the player to the exact center of the plot at nearest open space to the ground level
 	 *
+	 * @api
 	 * @param Plot $plot
 	 * @param Player $player
+	 *
 	 * @return bool
 	 */
 	public function teleportMiddle(Player $player, Plot $plot) : bool {
@@ -515,11 +544,22 @@ class MyPlot extends PluginBase
 		$this->getLogger()->notice(TF::GREEN."Enabled!");
 	}
 
+	/**
+	 * @param string $levelName
+	 * @param PlotLevelSettings $settings
+	 *
+	 * @return bool
+	 */
 	public function addLevelSettings(string $levelName, PlotLevelSettings $settings) : bool {
 		$this->levels[$levelName] = $settings;
 		return true;
 	}
 
+	/**
+	 * @param string $levelName
+	 *
+	 * @return bool
+	 */
 	public function unloadLevelSettings(string $levelName) : bool {
 		if (isset($this->levels[$levelName])) {
 			unset($this->levels[$levelName]);

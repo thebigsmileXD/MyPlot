@@ -502,7 +502,7 @@ class MyPlot extends PluginBase
 			}
 			if(!isset($this->economyProvider)) {
 				$this->getLogger()->info("No supported economy plugin found!");
-				$this->getConfig()->set("UseEconomy",false);
+				$this->getConfig()->set("UseEconomy", false);
 			}
 		}
 

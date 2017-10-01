@@ -7,9 +7,9 @@ api:
 - 3.0.0-ALPHA8
 - 3.0.0-ALPHA9
 authors:
- - Wiez
- - Exxarion
- - jasonwynn10
+- Wiez
+- Exxarion
+- jasonwynn10
 description: "Plots and Protection Plugin for PMMP Servers"
 load: STARTUP
 softdepend:

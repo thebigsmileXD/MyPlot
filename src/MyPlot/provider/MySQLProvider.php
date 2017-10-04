@@ -99,6 +99,7 @@ class MySQLProvider extends DataProvider
 	/**
 	 * @param string $levelName
 	 * @param int $X
+	 * @param int $Z
 	 *
 	 * @return Plot
 	 */
@@ -251,7 +252,9 @@ class MySQLProvider extends DataProvider
 					$level->save(); // don't force in case owner doesn't want it saved
 					$level->unload(true); // force unload to prevent possible griefing
 				}
-				//$this->plugin->getServer()->shutdown(); // TODO: create config setting for this
+				if($this->plugin->getConfig()->getNested("MySQLSettings.ShutdownOnFailure", false)) {
+					$this->plugin->getServer()->shutdown();
+				}
 				return false;
 			}
 		}

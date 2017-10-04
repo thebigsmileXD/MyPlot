@@ -38,7 +38,7 @@ class ResetSubCommand extends SubCommand
 				$sender->sendMessage(TextFormat::RED . $this->translateString("reset.nomoney"));
 				return true;
 			}
-
+			/** @var int $maxBlocksPerTick */
 			$maxBlocksPerTick = $this->getPlugin()->getConfig()->get("ClearBlocksPerTick", 256);
 			if ($this->getPlugin()->resetPlot($plot, $maxBlocksPerTick)) {
 				$sender->sendMessage($this->translateString("reset.success"));

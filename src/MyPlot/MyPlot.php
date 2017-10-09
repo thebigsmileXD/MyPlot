@@ -2,38 +2,32 @@
 declare(strict_types=1);
 namespace MyPlot;
 
+use EssentialsPE\Loader;
+use ImagicalGamer\EconomyPlus\Main;
+use MyPlot\provider\DataProvider;
 use MyPlot\provider\EconomyPlusProvider;
+use MyPlot\provider\EconomyProvider;
 use MyPlot\provider\EconomySProvider;
 use MyPlot\provider\EssentialsPEProvider;
 use MyPlot\provider\JSONDataProvider;
 use MyPlot\provider\MySQLProvider;
 use MyPlot\provider\PocketMoneyProvider;
+use MyPlot\provider\SQLiteDataProvider;
 use MyPlot\provider\YAMLDataProvider;
 use MyPlot\task\ClearPlotTask;
-use MyPlot\provider\DataProvider;
-use MyPlot\provider\SQLiteDataProvider;
-use MyPlot\provider\EconomyProvider;
-
 use onebone\economyapi\EconomyAPI;
-
-use EssentialsPE\Loader;
-
-use PocketMoney\PocketMoney;
-
-use ImagicalGamer\EconomyPlus\Main;
-
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\lang\BaseLang;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\generator\biome\Biome;
+use pocketmine\level\generator\Generator;
+use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\permission\Permission;
-use pocketmine\plugin\PluginBase;
-use pocketmine\level\generator\Generator;
 use pocketmine\Player;
-use pocketmine\level\Level;
+use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat as TF;
-
+use PocketMoney\PocketMoney;
 use spoondetector\SpoonDetector;
 
 class MyPlot extends PluginBase
@@ -249,7 +243,7 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
-		if($center) {
+		if ($center) {
 			return $this->teleportMiddle($player, $plot);
 		}
 		$plotLevel = $this->getLevelSettings($plot->levelName);
@@ -258,7 +252,7 @@ class MyPlot extends PluginBase
 		}
 		$pos = $this->getPlotPosition($plot);
 		$plotSize = $plotLevel->plotSize;
-		$pos->add(floor($plotSize / 2), -1, 1);
+		$pos->add(floor($plotSize / 2), 1, -1);
 		return $player->teleport($pos);
 	}
 
@@ -277,9 +271,9 @@ class MyPlot extends PluginBase
 		}
 		foreach($this->getServer()->getLevelByName($plot->levelName)->getEntities() as $entity) {
 			$plotB = $this->getPlotByPosition($entity);
-			if($plotB != null) {
-				if($plotB === $plot) {
-					if(!$entity instanceof Player) {
+			if ($plotB != null) {
+				if ($plotB === $plot) {
+					if (!$entity instanceof Player) {
 						$entity->close();
 					}
 				}
@@ -328,13 +322,13 @@ class MyPlot extends PluginBase
 	 */
 	public function setPlotBiome(Plot $plot, Biome $biome) : bool {
 		foreach($this->getPlotChunks($plot) as $chunk) {
-			if($chunk instanceof Chunk) {
+			if ($chunk instanceof Chunk) {
 				for($x = 0; $x <= 16; $x++) {
 					for($z = 0; $z <= 16; $z++) {
 						$chunk->setBiomeId($x, $z, $biome->getId());
 						$chunk->setChanged(true);
 						foreach ($chunk->getEntities() as $entity) {
-							if($entity instanceof Player) {
+							if ($entity instanceof Player) {
 								$entity->onChunkChanged($chunk);
 								$entity->sendChunk($x, $z, $chunk);
 							}
@@ -346,6 +340,59 @@ class MyPlot extends PluginBase
 
 		$plot->biome = $biome->getName();
 		$this->savePlot($plot);
+		return true;
+	}
+
+	/**
+	 * Changes the completed state of the plot
+	 *
+	 * @api
+	 * @param Plot $plot
+	 * @param bool $done
+	 *
+	 * @return bool
+	 */
+	public function setPlotDone(Plot $plot, bool $done = true) : bool {
+		$plot->done = $done;
+		$pos1 = $this->getPlotPosition($plot);
+		if ($pos1 !== null) {
+			$plotLevel = $this->getLevelSettings($plot->levelName);
+			if ($plotLevel === null) {
+				return false;
+			}
+
+			$plotSize = $plotLevel->plotSize;
+			if ($plot->X >= 0 and $plot->Z >= 0) {
+				$pos1 = $pos1->asVector3()->add(0, 3, 0);
+				$pos2 = $pos1->asVector3()->add($plotSize, 3);
+				$pos3 = $pos1->asVector3()->add(0, 3, $plotSize);
+				$pos4 = $pos1->asVector3()->add($plotSize, 3,$plotSize);
+			} elseif ($plot->X < 0 and $plot->Z > 0){
+				$pos1 = $pos1->asVector3()->add(0, 3, 0);
+				$pos2 = $pos1->asVector3()->add(-$plotSize, 3);
+				$pos3 = $pos1->asVector3()->add(0, 3, $plotSize);
+				$pos4 = $pos1->asVector3()->add(-$plotSize,3, $plotSize);
+			} elseif ($plot->X > 0 and $plot->Z < 0){
+				$pos1 = $pos1->asVector3()->add(0, 3, 0);
+				$pos2 = $pos1->asVector3()->add($plotSize, 3);
+				$pos3 = $pos1->asVector3()->add(0, 3, -$plotSize);
+				$pos4 = $pos1->asVector3()->add($plotSize,3, -$plotSize);
+			} elseif ($plot->X < 0 and $plot->Z < 0) {
+				$pos1 = $pos1->asVector3()->add(0, 3, 0);
+				$pos2 = $pos1->asVector3()->add(-$plotSize, 3);
+				$pos3 = $pos1->asVector3()->add(0, 3, -$plotSize);
+				$pos4 = $pos1->asVector3()->add(-$plotSize,3, -$plotSize);
+			} else {
+				return false;
+			}
+			if ($done) {
+				// TODO: spawn floating nametags at each corner reading the translated version of completed
+			} else {
+				// TODO: remove floating nametags at each corner reading the translated version of completed
+			}
+		} else {
+			return false;
+		}
 		return true;
 	}
 
@@ -457,7 +504,7 @@ class MyPlot extends PluginBase
 	 */
 	public function teleportMiddle(Player $player, Plot $plot) : bool {
 		$mid = $this->getPlotMid($plot);
-		if($mid == null) {
+		if ($mid == null) {
 			return false;
 		}
 		return $player->teleport($mid);
@@ -510,38 +557,38 @@ class MyPlot extends PluginBase
 
 	public function onEnable() : void {
 		SpoonDetector::printSpoon($this, "spoon.txt");
-		if($this->isDisabled()) {
+		if ($this->isDisabled()) {
 			return;
 		}
 		$this->getLogger()->debug(TF::BOLD."Loading economy settings");
 		// Initialize EconomyProvider
 		if ($this->getConfig()->get("UseEconomy", false) === true) {
 			if (($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) !== null) {
-				if($plugin instanceof EconomyAPI) {
+				if ($plugin instanceof EconomyAPI) {
 					$this->economyProvider = new EconomySProvider($plugin);
 					$this->getLogger()->debug("Eco set to EconomySProvider");
 				}
 				$this->getLogger()->debug("Eco not instance of EconomyAPI");
 			} elseif (($plugin = $this->getServer()->getPluginManager()->getPlugin("EssentialsPE")) !== null) {
-				if($plugin instanceof Loader) {
+				if ($plugin instanceof Loader) {
 					$this->economyProvider = new EssentialsPEProvider($plugin);
 					$this->getLogger()->debug("Eco set to EssentialsPE");
 				}
 				$this->getLogger()->debug("Eco not instance of EssentialsPE");
 			} elseif (($plugin = $this->getServer()->getPluginManager()->getPlugin("PocketMoney")) !== null) {
-				if($plugin instanceof PocketMoney) {
+				if ($plugin instanceof PocketMoney) {
 					$this->economyProvider = new PocketMoneyProvider($plugin);
 					$this->getLogger()->debug("Eco set to PocketMoney");
 				}
 				$this->getLogger()->debug("Eco not instance of PocketMoney");
-			} elseif(($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyPlus")) !== null) {
-				if($plugin instanceof Main) {
+			} elseif (($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyPlus")) !== null) {
+				if ($plugin instanceof Main) {
 					$this->economyProvider = new EconomyPlusProvider($plugin);
 					$this->getLogger()->debug("Eco set to EconomyPlus");
 				}
 				$this->getLogger()->debug("Eco not instance of EconomyPlus");
 			}
-			if(!isset($this->economyProvider)) {
+			if (!isset($this->economyProvider)) {
 				$this->getLogger()->info("No supported economy plugin found!");
 				$this->getConfig()->set("UseEconomy", false);
 			}

@@ -465,22 +465,24 @@ class MyPlot extends PluginBase
 
 	/* -------------------------- Non-API part -------------------------- */
 
-	public function onEnable() : void {
-		@mkdir($this->getDataFolder()); // for spoon detector
-		SpoonDetector::printSpoon($this, "spoon.txt");
-
+	public function onLoad() : void {
 		$this->getLogger()->notice(TF::BOLD."Loading...");
-
+		$this->getLogger()->debug(TF::BOLD."Loading Config");
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
-
 		@mkdir($this->getDataFolder() . "worlds");
 
+		$this->getLogger()->debug(TF::BOLD."Loading MyPlot Generator");
+		// Register world generator
 		Generator::addGenerator(MyPlotGenerator::class, "myplot");
+
+		$this->getLogger()->debug(TF::BOLD."Loading Languages");
+		// Loading Languages
 		/** @var string $lang */
 		$lang = $this->getConfig()->get("language", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang, $this->getFile() . "resources/");
 
+		$this->getLogger()->debug(TF::BOLD."Loading Data Provider settings");
 		// Initialize DataProvider
 		/** @var int $cacheSize */
 		$cacheSize = $this->getConfig()->get("PlotCacheSize", 256);
@@ -488,20 +490,30 @@ class MyPlot extends PluginBase
 			case "mysql":
 				$settings = $this->getConfig()->get("MySQLSettings");
 				$this->dataProvider = new MySQLProvider($this, $cacheSize, $settings);
-			break;
+				break;
 			case "yaml":
 				$this->dataProvider = new YAMLDataProvider($this, $cacheSize);
-			break;
+				break;
 			case "json":
 				$this->dataProvider = new JSONDataProvider($this, $cacheSize);
-			break;
+				break;
 			case "sqlite3":
 			case "sqlite":
 			default:
 				$this->dataProvider = new SQLiteDataProvider($this, $cacheSize);
-			break;
+				break;
 		}
+		$this->getLogger()->debug(TF::BOLD."Loading MyPlot Commands");
+		// Register command
+		$this->getServer()->getCommandMap()->register(Commands::class, new Commands($this));
+	}
 
+	public function onEnable() : void {
+		SpoonDetector::printSpoon($this, "spoon.txt");
+		if($this->isDisabled()) {
+			return;
+		}
+		$this->getLogger()->debug(TF::BOLD."Loading economy settings");
 		// Initialize EconomyProvider
 		if ($this->getConfig()->get("UseEconomy", false) === true) {
 			if (($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) !== null) {
@@ -535,12 +547,13 @@ class MyPlot extends PluginBase
 			}
 		}
 
+		$this->getLogger()->debug(TF::BOLD."Loading Events");
 		$eventListener = new EventListener($this);
 		$this->getServer()->getPluginManager()->registerEvents($eventListener, $this);
+		$this->getLogger()->debug(TF::BOLD."Registering Loaded Levels");
 		foreach($this->getServer()->getLevels() as $level) {
 			$eventListener->onLevelLoad(new LevelLoadEvent($level));
 		}
-		$this->getServer()->getCommandMap()->register(Commands::class, new Commands($this));
 		$this->getLogger()->notice(TF::GREEN."Enabled!");
 	}
 

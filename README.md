@@ -1,5 +1,6 @@
 # MyPlot
 [![Gitter](https://badges.gitter.im/jasonwynn10/MyPlot.svg)](https://gitter.im/jasonwynn10/MyPlot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status](https://travis-ci.org/jasonwynn10/MyPlot.svg?branch=API3)](https://travis-ci.org/jasonwynn10/MyPlot)
 [![Poggit-Ci](https://poggit.pmmp.io/ci.shield/jasonwynn10/MyPlot/MyPlot)](https://poggit.pmmp.io/ci/jasonwynn10/MyPlot/MyPlot)
 ### **Create, manage, and build in protected plots. Keep your builds safe from griefers!**
 

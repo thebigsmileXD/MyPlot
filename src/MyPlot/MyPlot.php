@@ -71,9 +71,9 @@ class MyPlot extends PluginBase
 	 *
 	 * @api
 	 *
-	 * @return EconomyProvider
+	 * @return EconomyProvider|null
 	 */
-	public function getEconomyProvider() : EconomyProvider {
+	public function getEconomyProvider() : ?EconomyProvider {
 		return $this->economyProvider;
 	}
 

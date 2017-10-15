@@ -43,7 +43,8 @@ class YAMLDataProvider extends DataProvider
 			"owner" => $plot->owner,
 			"helpers" => $plot->helpers,
 			"denied" => $plot->denied,
-			"biome" => $plot->biome
+			"biome" => $plot->biome,
+			"done" => $plot->done
 		];
 		$this->yaml->set("plots", $plots);
 		$this->cachePlot($plot);
@@ -96,13 +97,14 @@ class YAMLDataProvider extends DataProvider
 			$helpers = $plots[$key]["helpers"] == [] ? [] : $plots[$key]["helpers"];
 			$denied = $plots[$key]["denied"] == [] ? [] : $plots[$key]["denied"];
 			$biome = strtoupper($plots[$key]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$key]["biome"]);
+			$done = (bool)$plots[$key]["done"];
 
-			return new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $key);
+			return new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $done, $key);
 		}
 		$count = $this->yaml->get("count", 0);
 		$this->yaml->set("count", (int)$count++);
 		$this->yaml->save(true);
-		return new Plot($levelName, $X, $Z, "", "", [], [], "PLAINS", (int)$count);
+		return new Plot($levelName, $X, $Z, "", "", [], [], "PLAINS", false, (int)$count);
 	}
 
 	/**
@@ -122,14 +124,15 @@ class YAMLDataProvider extends DataProvider
 				foreach($ownerKeys as $ownerKey) {
 					if($levelKey == $ownerKey) {
 						$X = $plots[$levelKey]["x"];
-						$Z = $plots[$levelKey]["x"];
+						$Z = $plots[$levelKey]["z"];
 						$plotName = $plots[$levelKey]["name"] == "" ? "" : $plots[$levelKey]["name"];
 						$owner = $plots[$levelKey]["owner"] == "" ? "" : $plots[$levelKey]["owner"];
 						$helpers = $plots[$levelKey]["helpers"] == [] ? [] : $plots[$levelKey]["helpers"];
 						$denied = $plots[$levelKey]["denied"] == [] ? [] : $plots[$levelKey]["denied"];
 						$biome = strtoupper($plots[$levelKey]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$levelKey]["biome"]);
+						$done = (bool)$plots[$levelKey]["done"];
 
-						$ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $levelKey);
+						$ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $done, $levelKey);
 					}
 				}
 			}
@@ -138,14 +141,15 @@ class YAMLDataProvider extends DataProvider
 			foreach($ownerKeys as $key) {
 				$levelName = $plots[$key]["level"];
 				$X = $plots[$key]["x"];
-				$Z = $plots[$key]["x"];
+				$Z = $plots[$key]["z"];
 				$plotName = $plots[$key]["name"] == "" ? "" : $plots[$key]["name"];
 				$owner = $plots[$key]["owner"] == "" ? "" : $plots[$key]["owner"];
 				$helpers = $plots[$key]["helpers"] == [] ? [] : $plots[$key]["helpers"];
 				$denied = $plots[$key]["denied"] == [] ? [] : $plots[$key]["denied"];
 				$biome = strtoupper($plots[$key]["biome"]) == "PLAINS" ? "PLAINS" : strtoupper($plots[$key]["biome"]);
+				$done = (bool)$plots[$key]["done"];
 
-				$ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $key);
+				$ownerPlots[] = new Plot($levelName, $X, $Z, $plotName, $owner, $helpers, $denied, $biome, $done,$key);
 			}
 		}
 		return $ownerPlots;

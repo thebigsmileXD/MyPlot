@@ -34,9 +34,9 @@ class SQLiteDataProvider extends DataProvider
 			"SELECT id, name, owner, helpers, denied, biome FROM plots WHERE level = :level AND X = :X AND Z = :Z"
 		);
 		$this->sqlSavePlot = $this->db->prepare(
-			"INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome) VALUES
+			"INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, done) VALUES
 			((select id from plots where level = :level AND X = :X AND Z = :Z),
-			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome);"
+			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :done);"
 		);
 		$this->sqlSavePlotById = $this->db->prepare(
 			"UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome WHERE id = :id"
@@ -83,6 +83,7 @@ class SQLiteDataProvider extends DataProvider
 		$stmt->bindValue(":helpers", $helpers, SQLITE3_TEXT);
 		$stmt->bindValue(":denied", $denied, SQLITE3_TEXT);
 		$stmt->bindValue(":biome", $plot->biome, SQLITE3_TEXT);
+		$stmt->bindValue(":done", $plot->done, SQLITE3_BLOB);
 		$stmt->reset();
 		$result = $stmt->execute();
 		if ($result === false) {
@@ -145,7 +146,7 @@ class SQLiteDataProvider extends DataProvider
 				$denied = explode(",", (string)$val["denied"]);
 			}
 			$plot = new Plot($levelName, $X, $Z, (string)$val["name"], (string)$val["owner"],
-				$helpers, $denied, (string)$val["biome"], (int)$val["id"]);
+				$helpers, $denied, (string)$val["biome"], (bool)$val["done"], (int)$val["id"]);
 		} else {
 			$plot = new Plot($levelName, $X, $Z);
 		}
@@ -174,7 +175,7 @@ class SQLiteDataProvider extends DataProvider
 			$helpers = explode(",", (string)$val["helpers"]);
 			$denied = explode(",", (string)$val["denied"]);
 			$plots[] = new Plot((string)$val["level"], (int)$val["X"], (int)$val["Z"], (string)$val["name"],
-				(string)$val["owner"], $helpers, $denied, (string)$val["biome"], (int)$val["id"]);
+				(string)$val["owner"], $helpers, $denied, (string)$val["biome"], (bool)$val["done"], (int)$val["id"]);
 		}
 
 

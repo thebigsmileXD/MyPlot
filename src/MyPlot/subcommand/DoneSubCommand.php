@@ -30,7 +30,7 @@ class DoneSubCommand extends SubCommand {
 			return true;
 		}
 		if (isset($args[0]) and $args[0] == $this->translateString("confirm")) {
-			if($this->getPlugin()->setPlotDone($plot, true)){
+			if($this->getPlugin()->setPlotDone($plot, true)) {
 				$sender->sendMessage($this->translateString("done.success"));
 			}else{
 				$sender->sendMessage(TextFormat::RED . $this->translateString("error"));

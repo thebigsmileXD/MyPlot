@@ -16,12 +16,14 @@ use MyPlot\provider\SQLiteDataProvider;
 use MyPlot\provider\YAMLDataProvider;
 use MyPlot\task\ClearPlotTask;
 use onebone\economyapi\EconomyAPI;
+use pocketmine\entity\Entity;
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\lang\BaseLang;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\generator\biome\Biome;
 use pocketmine\level\generator\Generator;
 use pocketmine\level\Level;
+use pocketmine\level\particle\FloatingTextParticle;
 use pocketmine\level\Position;
 use pocketmine\permission\Permission;
 use pocketmine\Player;
@@ -43,6 +45,9 @@ class MyPlot extends PluginBase
 
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
+
+	/** @var int[][] $particles */
+	private $particles = [];
 
 	/**
 	 * Returns the Multi-lang management class
@@ -354,6 +359,7 @@ class MyPlot extends PluginBase
 	 */
 	public function setPlotDone(Plot $plot, bool $done = true) : bool {
 		$plot->done = $done;
+		$this->savePlot($plot);
 		$pos1 = $this->getPlotPosition($plot);
 		if ($pos1 !== null) {
 			$plotLevel = $this->getLevelSettings($plot->levelName);
@@ -363,32 +369,55 @@ class MyPlot extends PluginBase
 
 			$plotSize = $plotLevel->plotSize;
 			if ($plot->X >= 0 and $plot->Z >= 0) {
-				$pos1 = $pos1->asVector3()->add(0, 3, 0);
-				$pos2 = $pos1->asVector3()->add($plotSize, 3);
-				$pos3 = $pos1->asVector3()->add(0, 3, $plotSize);
-				$pos4 = $pos1->asVector3()->add($plotSize, 3,$plotSize);
-			} elseif ($plot->X < 0 and $plot->Z > 0){
-				$pos1 = $pos1->asVector3()->add(0, 3, 0);
-				$pos2 = $pos1->asVector3()->add(-$plotSize, 3);
-				$pos3 = $pos1->asVector3()->add(0, 3, $plotSize);
-				$pos4 = $pos1->asVector3()->add(-$plotSize,3, $plotSize);
-			} elseif ($plot->X > 0 and $plot->Z < 0){
-				$pos1 = $pos1->asVector3()->add(0, 3, 0);
-				$pos2 = $pos1->asVector3()->add($plotSize, 3);
-				$pos3 = $pos1->asVector3()->add(0, 3, -$plotSize);
-				$pos4 = $pos1->asVector3()->add($plotSize,3, -$plotSize);
+				$pos1 = $pos1->add(0, 3, 0);
+				$pos2 = $pos1->add($plotSize, 3);
+				$pos3 = $pos1->add(0, 3, $plotSize);
+				$pos4 = $pos1->add($plotSize, 3,$plotSize);
+			} elseif ($plot->X < 0 and $plot->Z > 0) {
+				$pos1 = $pos1->add(0, 3, 0);
+				$pos2 = $pos1->add(-$plotSize, 3);
+				$pos3 = $pos1->add(0, 3, $plotSize);
+				$pos4 = $pos1->add(-$plotSize,3, $plotSize);
+			} elseif ($plot->X > 0 and $plot->Z < 0) {
+				$pos1 = $pos1->add(0, 3, 0);
+				$pos2 = $pos1->add($plotSize, 3);
+				$pos3 = $pos1->add(0, 3, -$plotSize);
+				$pos4 = $pos1->add($plotSize,3, -$plotSize);
 			} elseif ($plot->X < 0 and $plot->Z < 0) {
-				$pos1 = $pos1->asVector3()->add(0, 3, 0);
-				$pos2 = $pos1->asVector3()->add(-$plotSize, 3);
-				$pos3 = $pos1->asVector3()->add(0, 3, -$plotSize);
-				$pos4 = $pos1->asVector3()->add(-$plotSize,3, -$plotSize);
+				$pos1 = $pos1->add(0, 3, 0);
+				$pos2 = $pos1->add(-$plotSize, 3);
+				$pos3 = $pos1->add(0, 3, -$plotSize);
+				$pos4 = $pos1->add(-$plotSize,3, -$plotSize);
 			} else {
 				return false;
 			}
+			$level = $this->getServer()->getLevelByName($plot->levelName);
+			if($level === null)
+				return false;
 			if ($done) {
-				// TODO: spawn floating nametags at each corner reading the translated version of completed
+				$particle = new FloatingTextParticle($pos1, "Completed");
+				$level->addParticle($particle);
+				$this->particles[$plot->id][] = Entity::$entityCount;
+				$level->addParticle($particle->setComponents($pos2->getX(), $pos2->getY(), $pos2->getZ()));
+				$this->particles[$plot->id][] = Entity::$entityCount;
+				$level->addParticle($particle->setComponents($pos3->getX(), $pos3->getY(), $pos3->getZ()));
+				$this->particles[$plot->id][] = Entity::$entityCount;
+				$level->addParticle($particle->setComponents($pos4->getX(), $pos4->getY(), $pos4->getZ()));
+				$this->particles[$plot->id][] = Entity::$entityCount;
 			} else {
-				// TODO: remove floating nametags at each corner reading the translated version of completed
+				$entity = $level->getEntity($this->particles[$plot->id][0]);
+				if($entity !== null)
+					$entity->close();
+				$entity = $level->getEntity($this->particles[$plot->id][1]);
+				if($entity !== null)
+					$entity->close();
+				$entity = $level->getEntity($this->particles[$plot->id][2]);
+				if($entity !== null)
+					$entity->close();
+				$entity = $level->getEntity($this->particles[$plot->id][3]);
+				if($entity !== null)
+					$entity->close();
+				unset($this->particles[$plot->id]);
 			}
 		} else {
 			return false;

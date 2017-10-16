@@ -28,10 +28,10 @@ class SQLiteDataProvider extends DataProvider
 		$this->db->exec(
 			"CREATE TABLE IF NOT EXISTS plots
 			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
-			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT);"
+			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, done INTEGER);"
 		);
 		$this->sqlGetPlot = $this->db->prepare(
-			"SELECT id, name, owner, helpers, denied, biome FROM plots WHERE level = :level AND X = :X AND Z = :Z"
+			"SELECT id, name, owner, helpers, denied, biome, done FROM plots WHERE level = :level AND X = :X AND Z = :Z"
 		);
 		$this->sqlSavePlot = $this->db->prepare(
 			"INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, done) VALUES
@@ -83,7 +83,7 @@ class SQLiteDataProvider extends DataProvider
 		$stmt->bindValue(":helpers", $helpers, SQLITE3_TEXT);
 		$stmt->bindValue(":denied", $denied, SQLITE3_TEXT);
 		$stmt->bindValue(":biome", $plot->biome, SQLITE3_TEXT);
-		$stmt->bindValue(":done", $plot->done, SQLITE3_BLOB);
+		$stmt->bindValue(":done", $plot->done, SQLITE3_INTEGER);
 		$stmt->reset();
 		$result = $stmt->execute();
 		if ($result === false) {

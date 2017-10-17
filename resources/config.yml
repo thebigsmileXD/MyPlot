@@ -59,8 +59,12 @@ DefaultWorld:
   RestrictEntityMovement: true
 
   # Update liquids (e.g. Water) from updating and moving
-  # This will allows things like water to lag the server in plot worlds
+  # This will allow things like water to lag the server in plot worlds
   UpdatePlotLiquids: false
+
+  # Display floating nametags on the corners of a plot when it is marked as completed
+  # This is experimental and might cause lag
+  DisplayCompletedNametags: false
 
   # How much it costs to claim a plot (Economy must be set to 'true')
   ClaimPrice: 0

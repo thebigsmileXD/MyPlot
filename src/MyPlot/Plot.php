@@ -129,14 +129,6 @@ class Plot
 	}
 
 	/**
-	 * @api
-	 * @param bool $done
-	 */
-	public function setDone($done = true) {
-		$this->done = $done;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function __toString() : string {

@@ -25,6 +25,7 @@ use pocketmine\level\generator\Generator;
 use pocketmine\level\Level;
 use pocketmine\level\particle\FloatingTextParticle;
 use pocketmine\level\Position;
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\permission\Permission;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
@@ -235,6 +236,39 @@ class MyPlot extends PluginBase
 		$z = $totalSize * $plot->Z;
 		$level = $this->getServer()->getLevelByName($plot->levelName);
 		return new Position($x, $plotLevel->groundHeight, $z, $level);
+	}
+
+	/**
+	 * Returns the AABB of the plot area
+	 *
+	 * @api
+	 * @param Plot $plot
+	 *
+	 * @return AxisAlignedBB|null
+	 */
+	public function getPlotBB(Plot $plot) : ?AxisAlignedBB {
+		$plotLevel = $this->getLevelSettings($plot->levelName);
+		if($plotLevel === null)
+			return null;
+		$plotSize = $plotLevel->plotSize;
+		$roadWidth = $plotLevel->roadWidth;
+		$totalSize = $plotSize + $roadWidth;
+
+		$minX = $totalSize * $plot->X;
+		$minZ = $totalSize * $plot->Z;
+
+		if($minX >= 0) {
+			$maxX = $minX + $plotSize;
+		}else{
+			$maxX = $minX - $plotSize;
+		}
+		if($minZ >= 0) {
+			$maxZ = $minZ + $plotSize;
+		}else{
+			$maxZ = $minZ - $plotSize;
+		}
+
+		return new AxisAlignedBB($minX,0, $minZ, $maxX, Level::Y_MAX, $maxZ);
 	}
 
 	/**

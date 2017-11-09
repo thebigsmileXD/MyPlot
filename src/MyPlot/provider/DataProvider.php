@@ -34,7 +34,7 @@ abstract class DataProvider
 			if (isset($this->cache[$key])) {
 				unset($this->cache[$key]);
 			} elseif($this->cacheSize <= count($this->cache)) {
-				array_pop($this->cache);
+				array_shift($this->cache);
 			}
 			$this->cache = array_merge(array($key => clone $plot), $this->cache);
 			$this->plugin->getLogger()->debug("Plot {$plot->X};{$plot->Z} has been cached");

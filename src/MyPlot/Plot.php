@@ -132,6 +132,6 @@ class Plot
 	 * @return string
 	 */
 	public function __toString() : string {
-		return "(" . $this->X . ";" . $this->Z . ")";
+		return "(".$this->X.";".$this->Z.")";
 	}
 }

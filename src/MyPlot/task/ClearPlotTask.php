@@ -2,13 +2,13 @@
 declare(strict_types=1);
 namespace MyPlot\task;
 
-use pocketmine\block\Block;
+use MyPlot\MyPlot;
+use MyPlot\Plot;
+use pocketmine\block\BlockFactory;
+use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\scheduler\PluginTask;
-
-use MyPlot\MyPlot;
-use MyPlot\Plot;
 
 class ClearPlotTask extends PluginTask {
 	/** @var MyPlot $plugin */
@@ -59,7 +59,7 @@ class ClearPlotTask extends PluginTask {
 		$blocks = 0;
 		while ($this->pos->x < $this->xMax) {
 			while ($this->pos->z < $this->zMax) {
-				while ($this->pos->y < 128) {
+				while ($this->pos->y < Level::Y_MAX) {
 					if ($this->pos->y === 0) {
 						$block = $this->bottomBlock;
 					} elseif ($this->pos->y < $this->height) {
@@ -67,7 +67,7 @@ class ClearPlotTask extends PluginTask {
 					} elseif ($this->pos->y === $this->height) {
 						$block = $this->plotFloorBlock;
 					} else {
-						$block = Block::get(0);
+						$block = BlockFactory::get(0);
 					}
 					$this->level->setBlock($this->pos, $block, false, false);
 					$blocks++;

@@ -3,9 +3,7 @@ declare(strict_types=1);
 namespace MyPlot;
 
 use EssentialsPE\Loader;
-use ImagicalGamer\EconomyPlus\Main;
 use MyPlot\provider\DataProvider;
-use MyPlot\provider\EconomyPlusProvider;
 use MyPlot\provider\EconomyProvider;
 use MyPlot\provider\EconomySProvider;
 use MyPlot\provider\EssentialsPEProvider;
@@ -29,6 +27,7 @@ use pocketmine\math\AxisAlignedBB;
 use pocketmine\permission\Permission;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat as TF;
 use PocketMoney\PocketMoney;
 use spoondetector\SpoonDetector;
@@ -394,65 +393,41 @@ class MyPlot extends PluginBase
 	public function setPlotDone(Plot $plot, bool $done = true) : bool {
 		$plot->done = $done;
 		$this->savePlot($plot);
-		$pos1 = $this->getPlotPosition($plot);
-		if ($pos1 !== null) {
-			$plotLevel = $this->getLevelSettings($plot->levelName);
-			if ($plotLevel === null) {
+		$plotLevel = $this->getLevelSettings($plot->levelName);
+		if ($plotLevel === null) {
+			return false;
+		}
+		if($plotLevel->displayDoneNametags) {
+			$level = $this->getServer()->getLevelByName($plot->levelName);
+			if($level === null)
 				return false;
-			}
-			if($plotLevel->displayDoneNametags) {
-				$plotSize = $plotLevel->plotSize;
-				if ($plot->X >= 0 and $plot->Z >= 0) {
-					$pos1 = $pos1->add(0, 3, 0);
-					$pos2 = $pos1->add($plotSize, 3);
-					$pos3 = $pos1->add(0, 3, $plotSize);
-					$pos4 = $pos1->add($plotSize, 3,$plotSize);
-				} elseif ($plot->X < 0 and $plot->Z > 0) {
-					$pos1 = $pos1->add(0, 3, 0);
-					$pos2 = $pos1->add(-$plotSize, 3);
-					$pos3 = $pos1->add(0, 3, $plotSize);
-					$pos4 = $pos1->add(-$plotSize,3, $plotSize);
-				} elseif ($plot->X > 0 and $plot->Z < 0) {
-					$pos1 = $pos1->add(0, 3, 0);
-					$pos2 = $pos1->add($plotSize, 3);
-					$pos3 = $pos1->add(0, 3, -$plotSize);
-					$pos4 = $pos1->add($plotSize,3, -$plotSize);
-				} elseif ($plot->X < 0 and $plot->Z < 0) {
-					$pos1 = $pos1->add(0, 3, 0);
-					$pos2 = $pos1->add(-$plotSize, 3);
-					$pos3 = $pos1->add(0, 3, -$plotSize);
-					$pos4 = $pos1->add(-$plotSize,3, -$plotSize);
-				} else {
-					return false;
-				}
-				$level = $this->getServer()->getLevelByName($plot->levelName);
-				if($level === null)
-					return false;
-				if ($done) {
-					$particle = new FloatingTextParticle($pos1, "Completed");
-					$level->addParticle($particle);
-					$this->particles[$plot->id][] = Entity::$entityCount;
-					$level->addParticle($particle->setComponents($pos2->getX(), $pos2->getY(), $pos2->getZ()));
-					$this->particles[$plot->id][] = Entity::$entityCount;
-					$level->addParticle($particle->setComponents($pos3->getX(), $pos3->getY(), $pos3->getZ()));
-					$this->particles[$plot->id][] = Entity::$entityCount;
-					$level->addParticle($particle->setComponents($pos4->getX(), $pos4->getY(), $pos4->getZ()));
-					$this->particles[$plot->id][] = Entity::$entityCount;
-				} else {
-					$entity = $level->getEntity($this->particles[$plot->id][0]);
-					if($entity !== null)
-						$entity->close();
-					$entity = $level->getEntity($this->particles[$plot->id][1]);
-					if($entity !== null)
-						$entity->close();
-					$entity = $level->getEntity($this->particles[$plot->id][2]);
-					if($entity !== null)
-						$entity->close();
-					$entity = $level->getEntity($this->particles[$plot->id][3]);
-					if($entity !== null)
-						$entity->close();
-					unset($this->particles[$plot->id]);
-				}
+			if ($done) {
+				$bb = $this->getPlotBB($plot);
+				$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "Completed")));
+				$this->particles[$plot->id][] = Entity::$entityCount;
+				/** @noinspection PhpParamsInspection */
+				$level->addParticle($particle->setComponents($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ));
+				$this->particles[$plot->id][] = Entity::$entityCount;
+				/** @noinspection PhpParamsInspection */
+				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->minZ));
+				$this->particles[$plot->id][] = Entity::$entityCount;
+				/** @noinspection PhpParamsInspection */
+				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->maxZ));
+				$this->particles[$plot->id][] = Entity::$entityCount;
+			} else {
+				$entity = $level->getEntity($this->particles[$plot->id][0]);
+				if($entity !== null)
+					$entity->close();
+				$entity = $level->getEntity($this->particles[$plot->id][1]);
+				if($entity !== null)
+					$entity->close();
+				$entity = $level->getEntity($this->particles[$plot->id][2]);
+				if($entity !== null)
+					$entity->close();
+				$entity = $level->getEntity($this->particles[$plot->id][3]);
+				if($entity !== null)
+					$entity->close();
+				unset($this->particles[$plot->id]);
 			}
 			//TODO: what if plots are already marked before the setting is disabled?
 		} else {
@@ -582,7 +557,7 @@ class MyPlot extends PluginBase
 		$this->getLogger()->debug(TF::BOLD."Loading Config");
 		$this->saveDefaultConfig();
 		$this->reloadConfig();
-		@mkdir($this->getDataFolder() . "worlds");
+		@mkdir($this->getDataFolder()."worlds");
 
 		$this->getLogger()->debug(TF::BOLD."Loading MyPlot Generator");
 		// Register world generator
@@ -592,7 +567,7 @@ class MyPlot extends PluginBase
 		// Loading Languages
 		/** @var string $lang */
 		$lang = $this->getConfig()->get("language", BaseLang::FALLBACK_LANGUAGE);
-		$this->baseLang = new BaseLang($lang, $this->getFile() . "resources/");
+		$this->baseLang = new BaseLang($lang, $this->getFile()."resources/");
 
 		$this->getLogger()->debug(TF::BOLD."Loading Data Provider settings");
 		// Initialize DataProvider
@@ -617,7 +592,7 @@ class MyPlot extends PluginBase
 		}
 		$this->getLogger()->debug(TF::BOLD."Loading MyPlot Commands");
 		// Register command
-		$this->getServer()->getCommandMap()->register(Commands::class, new Commands($this));
+		$this->getServer()->getCommandMap()->register("myplot", new Commands($this));
 	}
 
 	public function onEnable() : void {
@@ -646,12 +621,6 @@ class MyPlot extends PluginBase
 					$this->getLogger()->debug("Eco set to PocketMoney");
 				}
 				$this->getLogger()->debug("Eco not instance of PocketMoney");
-			} elseif (($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyPlus")) !== null) {
-				if ($plugin instanceof Main) {
-					$this->economyProvider = new EconomyPlusProvider($plugin);
-					$this->getLogger()->debug("Eco set to EconomyPlus");
-				}
-				$this->getLogger()->debug("Eco not instance of EconomyPlus");
 			}
 			if (!isset($this->economyProvider)) {
 				$this->getLogger()->info("No supported economy plugin found!");
@@ -698,5 +667,6 @@ class MyPlot extends PluginBase
 		if ($this->dataProvider !== null) {
 			$this->dataProvider->close();
 		}
+		(new Config($this->getDataFolder()."particles", Config::JSON))->setAll($this->particles);
 	}
 }

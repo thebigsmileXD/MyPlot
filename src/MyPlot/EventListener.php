@@ -4,18 +4,18 @@ namespace MyPlot;
 
 use pocketmine\block\Liquid;
 use pocketmine\block\Sapling;
-use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\Player;
+use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\BlockUpdateEvent;
 use pocketmine\event\entity\EntityExplodeEvent;
 use pocketmine\event\entity\EntityMotionEvent;
-use pocketmine\event\Listener;
 use pocketmine\event\level\LevelLoadEvent;
 use pocketmine\event\level\LevelUnloadEvent;
-use pocketmine\utils\Config;
-use pocketmine\event\block\BlockPlaceEvent;
-use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\Player;
+use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class EventListener implements Listener
@@ -49,7 +49,7 @@ class EventListener implements Listener
 				return;
 			}
 			$levelName = $event->getLevel()->getFolderName();
-			$filePath = $this->plugin->getDataFolder() . "worlds" . DIRECTORY_SEPARATOR . $levelName . ".yml";
+			$filePath = $this->plugin->getDataFolder()."worlds".DIRECTORY_SEPARATOR.$levelName.".yml";
 			$config = $this->plugin->getConfig();
 			$default = [
 				"RestrictEntityMovement" => $config->getNested("DefaultWorld.RestrictEntityMovement", true),
@@ -254,26 +254,26 @@ class EventListener implements Listener
 				$event->setCancelled();
 				return;
 			}
-			$plotName = TextFormat::GREEN . $plot;
+			$plotName = TextFormat::GREEN.$plot;
 			$popup = $this->plugin->getLanguage()->translateString("popup", [$plotName]);
 			if(strpos($plot->__toString(),"-0")) {
 				return;
 			}
 			if ($plot->owner != "") {
-				$owner = TextFormat::GREEN . $plot->owner;
+				$owner = TextFormat::GREEN.$plot->owner;
 				$ownerPopup = $this->plugin->getLanguage()->translateString("popup.owner", [$owner]);
 				$paddingSize = (int) floor((strlen($popup) - strlen($ownerPopup)) / 2);
 				$paddingPopup = str_repeat(" ", max(0, -$paddingSize));
 				$paddingOwnerPopup = str_repeat(" ", max(0, $paddingSize));
-				$popup = TextFormat::WHITE . $paddingPopup . $popup . "\n" .
-					TextFormat::WHITE . $paddingOwnerPopup . $ownerPopup;
+				$popup = TextFormat::WHITE.$paddingPopup.$popup."\n" .
+					TextFormat::WHITE.$paddingOwnerPopup.$ownerPopup;
 			} else {
 				$ownerPopup = $this->plugin->getLanguage()->translateString("popup.available");
 				$paddingSize = (int) floor((strlen($popup) - strlen($ownerPopup)) / 2);
 				$paddingPopup = str_repeat(" ", max(0, -$paddingSize));
 				$paddingOwnerPopup = str_repeat(" ", max(0, $paddingSize));
-				$popup = TextFormat::WHITE . $paddingPopup . $popup . "\n" .
-					TextFormat::WHITE . $paddingOwnerPopup . $ownerPopup;
+				$popup = TextFormat::WHITE.$paddingPopup.$popup."\n" .
+					TextFormat::WHITE.$paddingOwnerPopup.$ownerPopup;
 			}
 			$event->getPlayer()->sendTip($popup);
 		}

@@ -91,10 +91,7 @@ class MyPlot extends PluginBase
 	 * @return PlotLevelSettings|null
 	 */
 	public function getLevelSettings(string $levelName) : ?PlotLevelSettings {
-		if (isset($this->levels[$levelName])) {
-			return $this->levels[$levelName];
-		}
-		return null;
+		return $this->levels[$levelName] ?? null;
 	}
 
 	/**
@@ -119,10 +116,10 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function generateLevel(string $levelName, array $settings = []) : bool {
-		if ($this->getServer()->isLevelGenerated($levelName) === true) {
+		if($this->getServer()->isLevelGenerated($levelName) === true) {
 			return false;
 		}
-		if (empty($settings)) {
+		if(empty($settings)) {
 			$settings = $this->getConfig()->get("DefaultWorld");
 		}
 		$settings = [
@@ -183,7 +180,7 @@ class MyPlot extends PluginBase
 		$levelName = $position->level->getFolderName();
 
 		$plotLevel = $this->getLevelSettings($levelName);
-		if ($plotLevel === null) {
+		if($plotLevel === null) {
 			return null;
 		}
 
@@ -191,7 +188,7 @@ class MyPlot extends PluginBase
 		$roadWidth = $plotLevel->roadWidth;
 		$totalSize = $plotSize + $roadWidth;
 
-		if ($x >= 0) {
+		if($x >= 0) {
 			$X = (int) floor($x / $totalSize);
 			$difX = $x % $totalSize;
 		}else{
@@ -199,7 +196,7 @@ class MyPlot extends PluginBase
 			$difX = abs(($x - $plotSize + 1) % $totalSize);
 		}
 
-		if ($z >= 0) {
+		if($z >= 0) {
 			$Z = (int) floor($z / $totalSize);
 			$difZ = $z % $totalSize;
 		}else{
@@ -207,7 +204,7 @@ class MyPlot extends PluginBase
 			$difZ = abs(($z - $plotSize + 1) % $totalSize);
 		}
 
-		if (($difX > $plotSize - 1) or ($difZ > $plotSize - 1)) {
+		if(($difX > $plotSize - 1) or ($difZ > $plotSize - 1)) {
 			return null;
 		}
 
@@ -224,7 +221,7 @@ class MyPlot extends PluginBase
 	 */
 	public function getPlotPosition(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
-		if ($plotLevel === null) {
+		if($plotLevel === null) {
 			return null;
 		}
 
@@ -256,16 +253,8 @@ class MyPlot extends PluginBase
 		$minX = $totalSize * $plot->X;
 		$minZ = $totalSize * $plot->Z;
 
-		if($minX >= 0) {
-			$maxX = $minX + $plotSize;
-		}else{
-			$maxX = $minX - $plotSize;
-		}
-		if($minZ >= 0) {
-			$maxZ = $minZ + $plotSize;
-		}else{
-			$maxZ = $minZ - $plotSize;
-		}
+		$maxX = $minX >= 0 ? $minX + $plotSize : $maxX = $minX - $plotSize;
+		$maxZ = $minZ >= 0 ? $minZ + $plotSize : $maxZ = $minZ - $plotSize;
 
 		return new AxisAlignedBB($minX,0, $minZ, $maxX, Level::Y_MAX, $maxZ);
 	}
@@ -281,11 +270,11 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
-		if ($center) {
+		if($center) {
 			return $this->teleportMiddle($player, $plot);
 		}
 		$plotLevel = $this->getLevelSettings($plot->levelName);
-		if ($plotLevel === null) {
+		if($plotLevel === null) {
 			return false;
 		}
 		$pos = $this->getPlotPosition($plot);
@@ -304,14 +293,14 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function clearPlot(Plot $plot, int $maxBlocksPerTick = 256) : bool {
-		if (!$this->isLevelLoaded($plot->levelName)) {
+		if(!$this->isLevelLoaded($plot->levelName)) {
 			return false;
 		}
 		foreach($this->getServer()->getLevelByName($plot->levelName)->getEntities() as $entity) {
 			$plotB = $this->getPlotByPosition($entity);
-			if ($plotB != null) {
-				if ($plotB === $plot) {
-					if (!$entity instanceof Player) {
+			if($plotB != null) {
+				if($plotB === $plot) {
+					if(!$entity instanceof Player) {
 						$entity->close();
 					}
 				}
@@ -343,7 +332,7 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function resetPlot(Plot $plot, int $maxBlocksPerTick = 256) : bool {
-		if ($this->disposePlot($plot)) {
+		if($this->disposePlot($plot)) {
 			return $this->clearPlot($plot, $maxBlocksPerTick);
 		}
 		return false;
@@ -360,13 +349,13 @@ class MyPlot extends PluginBase
 	 */
 	public function setPlotBiome(Plot $plot, Biome $biome) : bool {
 		foreach($this->getPlotChunks($plot) as $chunk) {
-			if ($chunk instanceof Chunk) {
+			if($chunk instanceof Chunk) {
 				for($x = 0; $x <= 16; $x++) {
 					for($z = 0; $z <= 16; $z++) {
 						$chunk->setBiomeId($x, $z, $biome->getId());
 						$chunk->setChanged(true);
 						foreach ($chunk->getEntities() as $entity) {
-							if ($entity instanceof Player) {
+							if($entity instanceof Player) {
 								$entity->onChunkChanged($chunk);
 								$entity->sendChunk($x, $z, $chunk);
 							}
@@ -394,14 +383,14 @@ class MyPlot extends PluginBase
 		$plot->done = $done;
 		$this->savePlot($plot);
 		$plotLevel = $this->getLevelSettings($plot->levelName);
-		if ($plotLevel === null) {
+		if($plotLevel === null) {
 			return false;
 		}
 		if($plotLevel->displayDoneNametags) {
 			$level = $this->getServer()->getLevelByName($plot->levelName);
 			if($level === null)
 				return false;
-			if ($done) {
+			if($done) {
 				$bb = $this->getPlotBB($plot);
 				$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "Completed")));
 				$this->particles[$plot->id][] = Entity::$entityCount;
@@ -414,7 +403,7 @@ class MyPlot extends PluginBase
 				/** @noinspection PhpParamsInspection */
 				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->maxZ));
 				$this->particles[$plot->id][] = Entity::$entityCount;
-			} else {
+			}else{
 				$entity = $level->getEntity($this->particles[$plot->id][0]);
 				if($entity !== null)
 					$entity->close();
@@ -430,7 +419,7 @@ class MyPlot extends PluginBase
 				unset($this->particles[$plot->id]);
 			}
 			//TODO: what if plots are already marked before the setting is disabled?
-		} else {
+		}else{
 			return false;
 		}
 		return true;
@@ -467,7 +456,7 @@ class MyPlot extends PluginBase
 		for ($x = $pos->x; $x < $xMax; $x++) {
 			for ($z = $pos->z; $z < $zMax; $z++) {
 				$index = Level::chunkHash($x >> 4, $z >> 4);
-				if (!in_array($index, $chunkIndexes)) {
+				if(!in_array($index, $chunkIndexes)) {
 					$chunkIndexes[] = $index;
 				}
 				Level::getXZ($index, $pos->x, $pos->z);
@@ -492,7 +481,7 @@ class MyPlot extends PluginBase
 	 * @return int
 	 */
 	public function getMaxPlotsOfPlayer(Player $player) : int {
-		if ($player->hasPermission("myplot.claimplots.unlimited"))
+		if($player->hasPermission("myplot.claimplots.unlimited"))
 			return PHP_INT_MAX;
 		/** @var Permission[] $perms */
 		$perms = array_merge($this->getServer()->getPluginManager()->getDefaultPermissions($player->isOp()),
@@ -500,12 +489,12 @@ class MyPlot extends PluginBase
 		$perms = array_filter($perms, function ($name) {
 			return (substr($name, 0, 18) === "myplot.claimplots.");
 		}, ARRAY_FILTER_USE_KEY);
-		if (count($perms) == 0)
+		if(count($perms) == 0)
 			return 0;
 		krsort($perms);
 		foreach ($perms as $name => $perm) {
 			$maxPlots = substr($name, 18);
-			if (is_numeric($maxPlots)) {
+			if(is_numeric($maxPlots)) {
 				return (int) $maxPlots;
 			}
 		}
@@ -522,7 +511,7 @@ class MyPlot extends PluginBase
 	 */
 	public function getPlotMid(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
-		if ($plotLevel === null) {
+		if($plotLevel === null) {
 			return null;
 		}
 
@@ -544,7 +533,7 @@ class MyPlot extends PluginBase
 	 */
 	public function teleportMiddle(Player $player, Plot $plot) : bool {
 		$mid = $this->getPlotMid($plot);
-		if ($mid == null) {
+		if($mid == null) {
 			return false;
 		}
 		return $player->teleport($mid);
@@ -597,32 +586,32 @@ class MyPlot extends PluginBase
 
 	public function onEnable() : void {
 		SpoonDetector::printSpoon($this, "spoon.txt");
-		if ($this->isDisabled()) {
+		if($this->isDisabled()) {
 			return;
 		}
 		$this->getLogger()->debug(TF::BOLD."Loading economy settings");
 		// Initialize EconomyProvider
-		if ($this->getConfig()->get("UseEconomy", false) === true) {
-			if (($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) !== null) {
-				if ($plugin instanceof EconomyAPI) {
+		if($this->getConfig()->get("UseEconomy", false) === true) {
+			if(($plugin = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) !== null) {
+				if($plugin instanceof EconomyAPI) {
 					$this->economyProvider = new EconomySProvider($plugin);
 					$this->getLogger()->debug("Eco set to EconomySProvider");
 				}
 				$this->getLogger()->debug("Eco not instance of EconomyAPI");
-			} elseif (($plugin = $this->getServer()->getPluginManager()->getPlugin("EssentialsPE")) !== null) {
-				if ($plugin instanceof Loader) {
+			}elseif(($plugin = $this->getServer()->getPluginManager()->getPlugin("EssentialsPE")) !== null) {
+				if($plugin instanceof Loader) {
 					$this->economyProvider = new EssentialsPEProvider($plugin);
 					$this->getLogger()->debug("Eco set to EssentialsPE");
 				}
 				$this->getLogger()->debug("Eco not instance of EssentialsPE");
-			} elseif (($plugin = $this->getServer()->getPluginManager()->getPlugin("PocketMoney")) !== null) {
-				if ($plugin instanceof PocketMoney) {
+			}elseif(($plugin = $this->getServer()->getPluginManager()->getPlugin("PocketMoney")) !== null) {
+				if($plugin instanceof PocketMoney) {
 					$this->economyProvider = new PocketMoneyProvider($plugin);
 					$this->getLogger()->debug("Eco set to PocketMoney");
 				}
 				$this->getLogger()->debug("Eco not instance of PocketMoney");
 			}
-			if (!isset($this->economyProvider)) {
+			if(!isset($this->economyProvider)) {
 				$this->getLogger()->info("No supported economy plugin found!");
 				$this->getConfig()->set("UseEconomy", false);
 			}
@@ -655,7 +644,7 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function unloadLevelSettings(string $levelName) : bool {
-		if (isset($this->levels[$levelName])) {
+		if(isset($this->levels[$levelName])) {
 			unset($this->levels[$levelName]);
 			$this->getLogger()->debug("Level ".$levelName." settings unloaded!");
 			return true;
@@ -664,7 +653,7 @@ class MyPlot extends PluginBase
 	}
 
 	public function onDisable() : void {
-		if ($this->dataProvider !== null) {
+		if($this->dataProvider !== null) {
 			$this->dataProvider->close();
 		}
 		(new Config($this->getDataFolder()."particles", Config::JSON))->setAll($this->particles);

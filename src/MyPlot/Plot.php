@@ -50,7 +50,7 @@ class Plot
 	 * @return bool
 	 */
 	public function addHelper(string $username) : bool {
-		if (!$this->isHelper($username)) {
+		if(!$this->isHelper($username)) {
 			$this->unDenyPlayer($username);
 			$this->helpers[] = $username;
 			return true;
@@ -69,7 +69,7 @@ class Plot
 			return false;
 		}
 		$key = array_search($username, $this->helpers);
-		if ($key === false) {
+		if($key === false) {
 			return false;
 		}
 		unset($this->helpers[$key]);
@@ -93,7 +93,7 @@ class Plot
 	 * @return bool
 	 */
 	public function denyPlayer(string $username) : bool {
-		if (!$this->isDenied($username)) {
+		if(!$this->isDenied($username)) {
 			$this->removeHelper($username);
 			$this->denied[] = $username;
 			return true;
@@ -112,7 +112,7 @@ class Plot
 			return false;
 		}
 		$key = array_search($username, $this->denied);
-		if ($key === false) {
+		if($key === false) {
 			return false;
 		}
 		unset($this->denied[$key]);

@@ -4,6 +4,7 @@ namespace MyPlot;
 
 use pocketmine\block\Block;
 use pocketmine\level\ChunkManager;
+use pocketmine\level\generator\biome\Biome;
 use pocketmine\level\generator\Generator;
 use pocketmine\math\Vector3;
 use pocketmine\utils\Random;
@@ -32,12 +33,12 @@ class MyPlotGenerator extends Generator
 	 * @param array $settings
 	 */
 	public function __construct(array $settings = []) {
-		if (isset($settings["preset"])) {
+		if(isset($settings["preset"])) {
 			$settings = json_decode($settings["preset"], true);
-			if ($settings === false) {
+			if($settings === false) {
 				$settings = [];
 			}
-		} else {
+		}else{
 			$settings = [];
 		}
 		$this->roadBlock = PlotLevelSettings::parseBlock($settings, "RoadBlock", Block::get(Block::PLANKS));
@@ -106,17 +107,17 @@ class MyPlotGenerator extends Generator
 
 		for ($Z = 0; $Z < 16; ++$Z) {
 			for ($X = 0; $X < 16; ++$X) {
-				$chunk->setBiomeId($X, $Z, 1);
+				$chunk->setBiomeId($X, $Z, Biome::PLAINS);
 				$chunk->setBlock($X, 0, $Z, $bottomBlockId, $bottomBlockMeta);
 				for ($y = 1; $y < $groundHeight; ++$y) {
 					$chunk->setBlock($X, $y, $Z, $plotFillBlockId, $plotFillBlockMeta);
 				}
 				$type = $shape[($Z << 4) | $X];
-				if ($type === self::PLOT) {
+				if($type === self::PLOT) {
 					$chunk->setBlock($X, $groundHeight, $Z, $plotFloorBlockId, $plotFloorBlockMeta);
-				} elseif ($type === self::ROAD) {
+				}elseif($type === self::ROAD) {
 					$chunk->setBlock($X, $groundHeight, $Z, $roadBlockId, $roadBlockMeta);
-				} else {
+				}else{
 					$chunk->setBlock($X, $groundHeight, $Z, $roadBlockId, $roadBlockMeta);
 					$chunk->setBlock($X, $groundHeight + 1, $Z, $wallBlockId, $wallBlockMeta);
 				}
@@ -135,46 +136,46 @@ class MyPlotGenerator extends Generator
 	 */
 	public function getShape(int $x, int $z) {
 		$totalSize = $this->plotSize + $this->roadWidth;
-		if ($x >= 0) {
+		if($x >= 0) {
 			$X = $x % $totalSize;
-		} else {
+		}else{
 			$X = $totalSize - abs($x % $totalSize);
 		}
-		if ($z >= 0) {
+		if($z >= 0) {
 			$Z = $z % $totalSize;
-		} else {
+		}else{
 			$Z = $totalSize - abs($z % $totalSize);
 		}
 		$startX = $X;
 		$shape = new \SplFixedArray(256);
 		for ($z = 0; $z < 16; $z++, $Z++) {
-			if ($Z === $totalSize) {
+			if($Z === $totalSize) {
 				$Z = 0;
 			}
-			if ($Z < $this->plotSize) {
+			if($Z < $this->plotSize) {
 				$typeZ = self::PLOT;
-			} elseif ($Z === $this->plotSize or $Z === ($totalSize-1)) {
+			}elseif($Z === $this->plotSize or $Z === ($totalSize-1)) {
 				$typeZ = self::WALL;
-			} else {
+			}else{
 				$typeZ = self::ROAD;
 			}
 			for ($x = 0, $X = $startX; $x < 16; $x++, $X++) {
-				if ($X === $totalSize)
+				if($X === $totalSize)
 					$X = 0;
-				if ($X < $this->plotSize) {
+				if($X < $this->plotSize) {
 					$typeX = self::PLOT;
-				} elseif ($X === $this->plotSize or $X === ($totalSize-1)) {
+				}elseif($X === $this->plotSize or $X === ($totalSize-1)) {
 					$typeX = self::WALL;
-				} else {
+				}else{
 					$typeX = self::ROAD;
 				}
-				if ($typeX === $typeZ) {
+				if($typeX === $typeZ) {
 					$type = $typeX;
-				} elseif ($typeX === self::PLOT) {
+				}elseif($typeX === self::PLOT) {
 					$type = $typeZ;
-				} elseif ($typeZ === self::PLOT) {
+				}elseif($typeZ === self::PLOT) {
 					$type = $typeX;
-				} else {
+				}else{
 					$type = self::ROAD;
 				}
 				$shape[($z << 4)| $x] = $type;

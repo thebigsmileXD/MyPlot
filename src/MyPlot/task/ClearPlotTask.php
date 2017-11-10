@@ -14,7 +14,7 @@ class ClearPlotTask extends PluginTask {
 	/** @var MyPlot $plugin */
 	private $plugin;
 
-	private $level, $height, $bottomBlock, $plotFillBlock, $plotFloorBlock, $plotBeginPos, $xMax, $zMax, $maxBlocksPerTick, $pos;
+	private $plot, $level, $height, $bottomBlock, $plotFillBlock, $plotFloorBlock, $plotBeginPos, $xMax, $zMax, $maxBlocksPerTick, $pos;
 
 	/**
 	 * ClearPlotTask constructor.
@@ -25,6 +25,7 @@ class ClearPlotTask extends PluginTask {
 	 */
 	public function __construct(MyPlot $plugin, Plot $plot, $maxBlocksPerTick = 256) {
 		parent::__construct($plugin);
+		$this->plot = $plot;
 		$this->plotBeginPos = $plugin->getPlotPosition($plot);
 		$this->level = $this->plotBeginPos->getLevel();
 		$plotLevel = $plugin->getLevelSettings($plot->levelName);
@@ -45,24 +46,6 @@ class ClearPlotTask extends PluginTask {
 	 * @param int $currentTick
 	 */
 	public function onRun(int $currentTick) : void {
-		foreach($this->level->getEntities() as $entity) {
-			if(($plot = $this->plugin->getPlotByPosition($entity)) != null) {
-				if($plot->X === $this->plotBeginPos->x and $plot->Z === $this->plotBeginPos->z) {
-					if(!$entity instanceof Player) {
-						$entity->close();
-					}else{
-						$this->plugin->teleportPlayerToPlot($entity, $plot);
-					}
-				}
-			}
-		}
-		foreach($this->level->getTiles() as $tile) {
-			if(($plot = $this->plugin->getPlotByPosition($tile)) != null) {
-				if($plot->X === $this->plotBeginPos->x and $plot->Z === $this->plotBeginPos->z) {
-					$tile->close();
-				}
-			}
-		}
 		$blocks = 0;
 		while($this->pos->x < $this->xMax) {
 			while($this->pos->z < $this->zMax) {
@@ -89,6 +72,23 @@ class ClearPlotTask extends PluginTask {
 			}
 			$this->pos->z = $this->plotBeginPos->z;
 			$this->pos->x++;
+		}
+		$bb = $this->plugin->getPlotBB($this->plot);
+		foreach($this->plugin->getPlotChunks($this->plot) as $chunk) {
+			foreach($chunk->getEntities() as $entity) {
+				if($bb->isVectorInXZ($entity)) {
+					if(!$entity instanceof Player) {
+						$entity->close();
+					} else {
+						$this->plugin->teleportPlayerToPlot($entity, $this->plot);
+					}
+				}
+			}
+			foreach($chunk->getTiles() as $tile) {
+				if($bb->isVectorInXZ($tile)) {
+					$tile->close();
+				}
+			}
 		}
 		$this->plugin->getLogger()->debug("Clear task completed at {$this->plotBeginPos->x};{$this->plotBeginPos->z}");
 	}

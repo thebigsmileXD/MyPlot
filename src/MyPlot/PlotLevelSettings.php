@@ -23,7 +23,7 @@ class PlotLevelSettings
 	 */
 	public function __construct(string $name, array $settings = []) {
 		$this->name = $name;
-		if (!empty($settings)) {
+		if(!empty($settings)) {
 			$this->roadBlock = self::parseBlock($settings, "RoadBlock", Block::get(Block::PLANKS));
 			$this->wallBlock = self::parseBlock($settings, "WallBlock", Block::get(Block::STONE_SLAB));
 			$this->plotFloorBlock = self::parseBlock($settings, "PlotFloorBlock", Block::get(Block::GRASS));
@@ -49,19 +49,19 @@ class PlotLevelSettings
 	 * @return Block
 	 */
 	public static function parseBlock(array &$array, $key, Block $default) : Block {
-		if (isset($array[$key])) {
+		if(isset($array[$key])) {
 			$id = $array[$key];
-			if (is_numeric($id)) {
+			if(is_numeric($id)) {
 				$block = Block::get((int) $id);
-			} else {
+			}else{
 				$split = explode(":", $id);
-				if (count($split) === 2 and is_numeric($split[0]) and is_numeric($split[1])) {
+				if(count($split) === 2 and is_numeric($split[0]) and is_numeric($split[1])) {
 					$block = Block::get((int) $split[0], (int) $split[1]);
-				} else {
+				}else{
 					$block = $default;
 				}
 			}
-		} else {
+		}else{
 			$block = $default;
 		}
 		return $block;
@@ -74,9 +74,9 @@ class PlotLevelSettings
 	 * @return int
 	 */
 	public static function parseNumber(array &$array, $key, int $default) : int {
-		if (isset($array[$key]) and is_numeric($array[$key])) {
+		if(isset($array[$key]) and is_numeric($array[$key])) {
 			return (int) $array[$key];
-		} else {
+		}else{
 			return $default;
 		}
 	}
@@ -88,9 +88,9 @@ class PlotLevelSettings
 	 * @return bool
 	 */
 	public static function parseBool(array &$array, $key, bool $default) : bool {
-		if (isset($array[$key]) and is_bool($array[$key])) {
+		if(isset($array[$key]) and is_bool($array[$key])) {
 			return (bool) $array[$key];
-		} else {
+		}else{
 			return $default;
 		}
 	}

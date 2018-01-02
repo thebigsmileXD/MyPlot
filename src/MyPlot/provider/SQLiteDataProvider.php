@@ -28,10 +28,12 @@ class SQLiteDataProvider extends DataProvider
 		$this->db->exec(
 			"CREATE TABLE IF NOT EXISTS plots
 			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
-			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT, done INTEGER);"
+			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT);"
 		);
+		$this->db->exec("ALTER TABLE plots ADD COLUMN done INTEGER;");
+
 		$this->sqlGetPlot = $this->db->prepare(
-			"SELECT id, name, owner, helpers, denied, biome, done FROM plots WHERE level = :level AND X = :X AND Z = :Z"
+			"SELECT id, name, owner, helpers, denied, biome, done FROM plots WHERE level = :level AND X = :X AND Z = :Z;"
 		);
 		$this->sqlSavePlot = $this->db->prepare(
 			"INSERT OR REPLACE INTO plots (id, level, X, Z, name, owner, helpers, denied, biome, done) VALUES
@@ -39,15 +41,15 @@ class SQLiteDataProvider extends DataProvider
 			 :level, :X, :Z, :name, :owner, :helpers, :denied, :biome, :done);"
 		);
 		$this->sqlSavePlotById = $this->db->prepare(
-			"UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome WHERE id = :id"
+			"UPDATE plots SET name = :name, owner = :owner, helpers = :helpers, denied = :denied, biome = :biome WHERE id = :id;"
 		);
 		$this->sqlRemovePlot = $this->db->prepare(
-			"DELETE FROM plots WHERE level = :level AND X = :X AND Z = :Z"
+			"DELETE FROM plots WHERE level = :level AND X = :X AND Z = :Z;"
 		);
-		$this->sqlRemovePlotById = $this->db->prepare("DELETE FROM plots WHERE id = :id");
-		$this->sqlGetPlotsByOwner = $this->db->prepare("SELECT * FROM plots WHERE owner = :owner");
+		$this->sqlRemovePlotById = $this->db->prepare("DELETE FROM plots WHERE id = :id;");
+		$this->sqlGetPlotsByOwner = $this->db->prepare("SELECT * FROM plots WHERE owner = :owner;");
 		$this->sqlGetPlotsByOwnerAndLevel = $this->db->prepare(
-			"SELECT * FROM plots WHERE owner = :owner AND level = :level"
+			"SELECT * FROM plots WHERE owner = :owner AND level = :level;"
 		);
 		$this->sqlGetExistingXZ = $this->db->prepare(
 			"SELECT X, Z FROM plots WHERE (

@@ -40,9 +40,11 @@ class MySQLProvider extends DataProvider
 		$this->db->query(
 			"CREATE TABLE IF NOT EXISTS plots (id INT PRIMARY KEY AUTO_INCREMENT, level TEXT, X INT, Z INT, name TEXT, owner TEXT, helpers TEXT, denied TEXT, biome TEXT);"
 		);
-		$this->db->query(
-			"ALTER TABLE plots ADD done BOOL;"
-		);
+		try {
+			$this->db->query("ALTER TABLE plots ADD done BOOL;");
+		}catch(\ErrorException $e) {
+			//do nothing
+		}
 		$this->prepare();
 		$this->plugin->getLogger()->debug("MySQL data provider registered");
 	}

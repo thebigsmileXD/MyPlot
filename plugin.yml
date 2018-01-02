@@ -18,6 +18,7 @@ softdepend:
 - PocketMoney
 - EssentialsPE
 - EconomyPlus
+- DEVirion
 extensions:
 - sqlite3
 - mysqli

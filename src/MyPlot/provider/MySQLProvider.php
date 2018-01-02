@@ -38,8 +38,13 @@ class MySQLProvider extends DataProvider
 		$this->settings = $settings;
 		$this->db = new \mysqli($settings['Host'], $settings['Username'], $settings['Password'], $settings['DatabaseName'], $settings['Port']);
 		$this->db->query(
-			"CREATE TABLE IF NOT EXISTS plots (id INT PRIMARY KEY AUTO_INCREMENT, level TEXT, X INT, Z INT, name TEXT, owner TEXT, helpers TEXT, denied TEXT, biome TEXT, done BOOL);"
+			"CREATE TABLE IF NOT EXISTS plots (id INT PRIMARY KEY AUTO_INCREMENT, level TEXT, X INT, Z INT, name TEXT, owner TEXT, helpers TEXT, denied TEXT, biome TEXT);"
 		);
+		try {
+			$this->db->query("ALTER TABLE plots ADD done BOOL;");
+		}catch(\ErrorException $e) {
+			//do nothing
+		}
 		$this->prepare();
 		$this->plugin->getLogger()->debug("MySQL data provider registered");
 	}
@@ -228,8 +233,8 @@ class MySQLProvider extends DataProvider
 	}
 
 	public function close() : void {
-		$this->db->close();
-		$this->plugin->getLogger()->debug("MySQL database closed!");
+		if($this->db->close())
+			$this->plugin->getLogger()->debug("MySQL database closed!");
 	}
 	
 	/**
@@ -238,7 +243,7 @@ class MySQLProvider extends DataProvider
 	private function reconnect() : bool {
 		if(!$this->db->ping()) {
 			$this->plugin->getLogger()->error("The MySQL server can not be reached! Trying to reconnect!");
-			$this->db->close();
+			$this->close();
 			$this->db->connect($this->settings['Host'], $this->settings['Username'], $this->settings['Password'], $this->settings['DatabaseName'], $this->settings['Port']);
 			$this->prepare();
 			if($this->db->ping()) {
@@ -246,7 +251,7 @@ class MySQLProvider extends DataProvider
 				return true;
 			}else{
 				$this->plugin->getLogger()->critical("The MySQL connection could not be re-established!");
-				$this->plugin->getLogger()->critical("Closing level to prevent griefing!");
+				$this->plugin->getLogger()->critical("Closing level to prevent griefing!");  //TODO: Is this necessary? The cache should still work
 				foreach($this->plugin->getPlotLevels() as $levelName => $settings) {
 					$level = $this->plugin->getServer()->getLevelByName($levelName);
 					$level->save(); // don't force in case owner doesn't want it saved

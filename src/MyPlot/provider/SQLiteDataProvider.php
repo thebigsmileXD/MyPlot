@@ -30,8 +30,9 @@ class SQLiteDataProvider extends DataProvider
 			(id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, X INTEGER, Z INTEGER, name TEXT,
 			 owner TEXT, helpers TEXT, denied TEXT, biome TEXT);"
 		);
-		$this->db->exec("ALTER TABLE plots ADD COLUMN done INTEGER;");
-
+		$this->db->exec(
+			"ALTER TABLE plots ADD COLUMN done INTEGER;"
+		);
 		$this->sqlGetPlot = $this->db->prepare(
 			"SELECT id, name, owner, helpers, denied, biome, done FROM plots WHERE level = :level AND X = :X AND Z = :Z;"
 		);

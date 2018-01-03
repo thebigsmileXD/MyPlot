@@ -46,7 +46,7 @@ class MyPlot extends PluginBase
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
 
-	/** @var int[][] $particles */
+	/** @var array[] $particles */
 	private $particles = [];
 
 	/**
@@ -392,30 +392,34 @@ class MyPlot extends PluginBase
 				return false;
 			if($done) {
 				$bb = $this->getPlotBB($plot);
-				$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "Completed")));
-				$this->particles[$plot->id][] = Entity::$entityCount;
+				$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "", "Completed")));
+				$this->particles[$plot->id][$i = 0][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
 				/** @noinspection PhpParamsInspection */
 				$level->addParticle($particle->setComponents($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ));
-				$this->particles[$plot->id][] = Entity::$entityCount;
+				$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
 				/** @noinspection PhpParamsInspection */
 				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->minZ));
-				$this->particles[$plot->id][] = Entity::$entityCount;
+				$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
 				/** @noinspection PhpParamsInspection */
 				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->maxZ));
-				$this->particles[$plot->id][] = Entity::$entityCount;
+				$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
 			}else{
-				$entity = $level->getEntity($this->particles[$plot->id][0]);
+				$entity = $level->getEntity($this->particles[$plot->id][0][0]);
 				if($entity !== null)
-					$entity->close();
-				$entity = $level->getEntity($this->particles[$plot->id][1]);
+					$entity->flagForDespawn();
+				$entity = $level->getEntity($this->particles[$plot->id][1][0]);
 				if($entity !== null)
-					$entity->close();
-				$entity = $level->getEntity($this->particles[$plot->id][2]);
+					$entity->flagForDespawn();
+				$entity = $level->getEntity($this->particles[$plot->id][2][0]);
 				if($entity !== null)
-					$entity->close();
-				$entity = $level->getEntity($this->particles[$plot->id][3]);
+					$entity->flagForDespawn();
+				$entity = $level->getEntity($this->particles[$plot->id][3][0]);
 				if($entity !== null)
-					$entity->close();
+					$entity->flagForDespawn();
 				unset($this->particles[$plot->id]);
 			}
 			//TODO: what if plots are already marked before the setting is disabled?
@@ -614,6 +618,7 @@ class MyPlot extends PluginBase
 			if(!isset($this->economyProvider)) {
 				$this->getLogger()->info("No supported economy plugin found!");
 				$this->getConfig()->set("UseEconomy", false);
+				//$this->getConfig()->save();
 			}
 		}
 
@@ -624,7 +629,34 @@ class MyPlot extends PluginBase
 		foreach($this->getServer()->getLevels() as $level) {
 			$eventListener->onLevelLoad(new LevelLoadEvent($level));
 		}
-		$this->getLogger()->notice(TF::GREEN."Enabled!");
+		$this->getLogger()->debug(TF::BOLD."Loading Particles");
+		/** @var array[] $particles */
+		$particles = (new Config($this->getDataFolder()."particles.json", Config::JSON, []))->getAll();
+		foreach($particles as $plotId => $particleArray) {
+			$pos = explode(";", $particleArray[1]);
+			$level = $this->getServer()->getLevelByName($pos[3]);
+			if($level === null)
+				return;
+			$plot = $this->getPlotByPosition(new Position($pos[0], $pos[1], $pos[2], $level));
+			$plotLevel = $this->getLevelSettings($pos[3]);
+			$bb = $this->getPlotBB($plot);
+			$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "", "Completed")));
+			$this->particles[$plot->id][$i = 0][0] = Entity::$entityCount;
+			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+			/** @noinspection PhpParamsInspection */
+			$level->addParticle($particle->setComponents($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ));
+			$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+			/** @noinspection PhpParamsInspection */
+			$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->minZ));
+			$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+			/** @noinspection PhpParamsInspection */
+			$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->maxZ));
+			$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+		}
+		$this->getLogger()->notice(TF::BOLD.TF::GREEN."Enabled!");
 	}
 
 	/**
@@ -653,9 +685,10 @@ class MyPlot extends PluginBase
 	}
 
 	public function onDisable() : void {
-		if($this->dataProvider !== null) {
+		if($this->dataProvider !== null)
 			$this->dataProvider->close();
-		}
-		(new Config($this->getDataFolder()."particles", Config::JSON))->setAll($this->particles);
+		$particles = new Config($this->getDataFolder()."particles.json", Config::JSON, []);
+		$particles->setAll($this->particles);
+		$particles->save();
 	}
 }

@@ -392,6 +392,7 @@ class MyPlot extends PluginBase
 				return false;
 			if($done) {
 				$bb = $this->getPlotBB($plot);
+
 				$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "", "Completed")));
 				$this->particles[$plot->id][$i = 0][0] = Entity::$entityCount;
 				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
@@ -634,27 +635,27 @@ class MyPlot extends PluginBase
 		$particles = (new Config($this->getDataFolder()."particles.json", Config::JSON, []))->getAll();
 		foreach($particles as $plotId => $particleArray) {
 			$pos = explode(";", $particleArray[1]);
-			$level = $this->getServer()->getLevelByName($pos[3]);
-			if($level === null)
-				return;
-			$plot = $this->getPlotByPosition(new Position($pos[0], $pos[1], $pos[2], $level));
 			$plotLevel = $this->getLevelSettings($pos[3]);
-			$bb = $this->getPlotBB($plot);
-			$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "", "Completed")));
-			$this->particles[$plot->id][$i = 0][0] = Entity::$entityCount;
-			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
-			/** @noinspection PhpParamsInspection */
-			$level->addParticle($particle->setComponents($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ));
-			$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
-			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
-			/** @noinspection PhpParamsInspection */
-			$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->minZ));
-			$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
-			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
-			/** @noinspection PhpParamsInspection */
-			$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->maxZ));
-			$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
-			$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+			if($plotLevel->displayDoneNametags) {
+				$level = $this->getServer()->getLevelByName($pos[3]);
+				if($level === null)
+					return;
+				$plot = $this->getPlotByPosition(new Position($pos[0], $pos[1], $pos[2], $level));
+				$bb = $this->getPlotBB($plot);
+
+				$level->addParticle(($particle = new FloatingTextParticle(new Position($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ, $level), "", "Completed")));
+				$this->particles[$plot->id][$i = 0][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+				$level->addParticle($particle->setComponents($bb->minX, $plotLevel->groundHeight + 3, $bb->maxZ));
+				$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->minZ));
+				$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+				$level->addParticle($particle->setComponents($bb->maxX, $plotLevel->groundHeight + 3, $bb->maxZ));
+				$this->particles[$plot->id][$i++][0] = Entity::$entityCount;
+				$this->particles[$plot->id][$i][1] = $particle->x.";".$particle->y.";".$particle->z.";".$level->getFolderName();
+			}
 		}
 		$this->getLogger()->notice(TF::BOLD.TF::GREEN."Enabled!");
 	}

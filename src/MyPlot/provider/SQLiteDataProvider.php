@@ -133,7 +133,7 @@ class SQLiteDataProvider extends DataProvider
 	 * @return Plot
 	 */
 	public function getPlot(string $levelName, int $X, int $Z) : Plot {
-		if (($plot = $this->getPlotFromCache($levelName, $X, $Z)) != null) {
+		if(($plot = $this->getPlotFromCache($levelName, $X, $Z)) !== null) {
 			return $plot;
 		}
 		$this->sqlGetPlot->bindValue(":level", $levelName, SQLITE3_TEXT);

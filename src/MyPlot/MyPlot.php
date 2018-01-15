@@ -180,9 +180,8 @@ class MyPlot extends PluginBase
 		$levelName = $position->level->getFolderName();
 
 		$plotLevel = $this->getLevelSettings($levelName);
-		if($plotLevel === null) {
+		if($plotLevel === null)
 			return null;
-		}
 
 		$plotSize = $plotLevel->plotSize;
 		$roadWidth = $plotLevel->roadWidth;
@@ -273,9 +272,10 @@ class MyPlot extends PluginBase
 		$plotLevel = $this->getLevelSettings($plot->levelName);
 		if($plotLevel === null)
 			return false;
-		$pos = $this->getPlotPosition($plot);
-		$plotSize = $plotLevel->plotSize;
-		$pos->add(floor($plotSize / 2), 1.5, -1);
+		$pos    = $this->getPlotPosition($plot);
+		$pos->x += floor($plotLevel->plotSize / 2);
+		$pos->y += 1;
+		$pos->z -= 1;
 		return $player->teleport($pos);
 	}
 

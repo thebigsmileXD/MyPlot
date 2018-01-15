@@ -31,13 +31,14 @@ class WarpSubCommand extends SubCommand
 			return true;
 		}
 
+		/** @var string[] $plotIdArray */
 		$plotIdArray = explode(";", $args[0]);
 		if (count($plotIdArray) != 2 or !is_numeric($plotIdArray[0]) or !is_numeric($plotIdArray[1])) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("warp.wrongid"));
 			return true;
 		}
 
-		$plot = $this->getPlugin()->getProvider()->getPlot($levelName, $plotIdArray[0], $plotIdArray[1]);
+		$plot = $this->getPlugin()->getProvider()->getPlot($levelName, (int) $plotIdArray[0], (int) $plotIdArray[1]);
 		if ($plot->owner == "" and !$sender->hasPermission("myplot.admin.warp")) {
 			$sender->sendMessage(TextFormat::RED . $this->translateString("warp.unclaimed"));
 			return true;

@@ -40,6 +40,23 @@ class ClearPlotTask extends PluginTask {
 		$this->pos = new Vector3($this->plotBeginPos->x, 0, $this->plotBeginPos->z);
 		$this->plugin = $plugin;
 		$plugin->getLogger()->debug("Clear Task started at plot {$plot->X};{$plot->Z}");
+		$bb = $this->plugin->getPlotBB($this->plot);
+		foreach($this->plugin->getPlotChunks($this->plot) as $chunk) {
+			foreach($chunk->getEntities() as $entity) {
+				if($bb->isVectorInXZ($entity)) {
+					if(!$entity instanceof Player) {
+						$entity->close();
+					} else {
+						$this->plugin->teleportPlayerToPlot($entity, $this->plot);
+					}
+				}
+			}
+			foreach($chunk->getTiles() as $tile) {
+				if($bb->isVectorInXZ($tile)) {
+					$tile->close();
+				}
+			}
+		}
 	}
 
 	/**
@@ -60,8 +77,7 @@ class ClearPlotTask extends PluginTask {
 						$block = Block::get(Block::AIR);
 					}
 					$this->level->setBlock($this->pos, $block, false, false);
-					$blocks++;
-					if($blocks === $this->maxBlocksPerTick) {
+					if($blocks++ === $this->maxBlocksPerTick) {
 						$this->getOwner()->getServer()->getScheduler()->scheduleDelayedTask($this, 1);
 						return;
 					}
@@ -72,23 +88,6 @@ class ClearPlotTask extends PluginTask {
 			}
 			$this->pos->z = $this->plotBeginPos->z;
 			$this->pos->x++;
-		}
-		$bb = $this->plugin->getPlotBB($this->plot);
-		foreach($this->plugin->getPlotChunks($this->plot) as $chunk) {
-			foreach($chunk->getEntities() as $entity) {
-				if($bb->isVectorInXZ($entity)) {
-					if(!$entity instanceof Player) {
-						$entity->close();
-					} else {
-						$this->plugin->teleportPlayerToPlot($entity, $this->plot);
-					}
-				}
-			}
-			foreach($chunk->getTiles() as $tile) {
-				if($bb->isVectorInXZ($tile)) {
-					$tile->close();
-				}
-			}
 		}
 		$this->plugin->getLogger()->debug("Clear task completed at {$this->plotBeginPos->x};{$this->plotBeginPos->z}");
 	}

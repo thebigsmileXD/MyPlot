@@ -221,10 +221,8 @@ class MyPlot extends PluginBase
 	 */
 	public function getPlotPosition(Plot $plot) : ?Position {
 		$plotLevel = $this->getLevelSettings($plot->levelName);
-		if($plotLevel === null) {
+		if($plotLevel === null)
 			return null;
-		}
-
 		$plotSize = $plotLevel->plotSize;
 		$roadWidth = $plotLevel->roadWidth;
 		$totalSize = $plotSize + $roadWidth;
@@ -253,10 +251,10 @@ class MyPlot extends PluginBase
 		$minX = $totalSize * $plot->X;
 		$minZ = $totalSize * $plot->Z;
 
-		$maxX = $minX >= 0 ? $minX + $plotSize : $maxX = $minX - $plotSize;
-		$maxZ = $minZ >= 0 ? $minZ + $plotSize : $maxZ = $minZ - $plotSize;
+		$maxX = $minX >= 0 ? $minX + $plotSize : $minX - $plotSize;
+		$maxZ = $minZ >= 0 ? $minZ + $plotSize : $minZ - $plotSize;
 
-		return new AxisAlignedBB($minX,0, $minZ, $maxX, Level::Y_MAX, $maxZ);
+		return new AxisAlignedBB($minX, 0, $minZ, $maxX, Level::Y_MAX, $maxZ);
 	}
 
 	/**
@@ -270,16 +268,14 @@ class MyPlot extends PluginBase
 	 * @return bool
 	 */
 	public function teleportPlayerToPlot(Player $player, Plot $plot, bool $center = false) : bool {
-		if($center) {
+		if($center)
 			return $this->teleportMiddle($player, $plot);
-		}
 		$plotLevel = $this->getLevelSettings($plot->levelName);
-		if($plotLevel === null) {
+		if($plotLevel === null)
 			return false;
-		}
 		$pos = $this->getPlotPosition($plot);
 		$plotSize = $plotLevel->plotSize;
-		$pos->add(floor($plotSize / 2), 1, -1);
+		$pos->add(floor($plotSize / 2), 1.5, -1);
 		return $player->teleport($pos);
 	}
 
@@ -471,7 +467,9 @@ class MyPlot extends PluginBase
 		foreach ($chunkIndexes as $index) {
 			Level::getXZ($index, $plot->X, $plot->Z);
 			$chunk = $level->getChunk($plot->X,$plot->Z);
-			$chunks[] = $chunk;
+			if($chunk !== null) {
+				$chunks[] = $chunk;
+			}
 		}
 
 		return $chunks;
